@@ -12,10 +12,36 @@ public class EnemySpawner : MonoBehaviour
 
     private readonly List<EnemyController> activeEnemies = new List<EnemyController>();
     private float timeUntilSpawn;
+    private Health playerHealth;
+    [SerializeField] private int killCount;
+
+    public IReadOnlyList<EnemyController> ActiveEnemies => activeEnemies;
+    public int KillCount => killCount;
+
+    private void Awake()
+    {
+        killCount = 0;
+        if (player != null)
+            playerHealth = player.GetComponent<Health>();
+    }
+
+    private void HandleEnemyDeath(Health enemyHealth)
+    {
+        enemyHealth.Died -= HandleEnemyDeath;
+        if (activeEnemies.Remove(enemyHealth.GetComponent<EnemyController>()))
+            killCount++;
+    }
+
+    private void OnDestroy()
+    {
+        foreach (EnemyController enemy in activeEnemies)
+            if (enemy != null && enemy.Health != null)
+                enemy.Health.Died -= HandleEnemyDeath;
+    }
 
     private void Update()
     {
-        if (enemyPrefab == null || player == null)
+        if (enemyPrefab == null || player == null || playerHealth == null || !playerHealth.IsAlive)
             return;
 
         timeUntilSpawn -= Time.deltaTime;
@@ -32,5 +58,6 @@ public class EnemySpawner : MonoBehaviour
         EnemyController enemy = Instantiate(enemyPrefab, player.position + offset, Quaternion.identity, enemiesParent);
         enemy.SetTarget(player);
         activeEnemies.Add(enemy);
+        enemy.Health.Died += HandleEnemyDeath;
     }
 }

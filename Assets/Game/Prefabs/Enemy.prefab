@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 330590545483729295}
   - component: {fileID: 2687011550180266423}
+  - component: {fileID: 8567904198753377432}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Untagged
@@ -47,6 +48,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyController
   target: {fileID: 0}
   movementSpeed: 1.8
+  contactRange: 1.2
+  contactDamage: 10
+  damageInterval: 1
+--- !u!114 &8567904198753377432
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6872769478474117672}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b9426f5aa83f6d3438d374653667920a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Health
+  maxHealth: 50
+  currentHealth: 0
+  visual: {fileID: 6435563358938786837}
+  hitPulseDuration: 0.15
+  hitPulseScale: 1.18
+  aimHeight: 1.1
 --- !u!1001 &6828881703087213566
 PrefabInstance:
   m_ObjectHideFlags: 0
