@@ -28,7 +28,7 @@ public class Health : MonoBehaviour
 
     public void TakeDamage(int damage)
     {
-        if (!IsAlive || damage <= 0)
+        if (!isActiveAndEnabled || !IsAlive || damage <= 0)
             return;
 
         currentHealth = Mathf.Max(0, currentHealth - damage);

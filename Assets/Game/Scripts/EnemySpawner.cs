@@ -18,6 +18,13 @@ public class EnemySpawner : MonoBehaviour
     public IReadOnlyList<EnemyController> ActiveEnemies => activeEnemies;
     public int KillCount => killCount;
 
+    public void ApplyDifficulty(DifficultyConfig difficulty)
+    {
+        spawnInterval = Mathf.Max(0.1f, difficulty.SpawnInterval);
+        maximumActiveEnemies = Mathf.Max(1, difficulty.MaximumActiveEnemies);
+        timeUntilSpawn = 0f;
+    }
+
     private void Awake()
     {
         killCount = 0;
