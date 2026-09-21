@@ -27,7 +27,7 @@ public class PlayerController : MonoBehaviour
         if (!health.IsAlive)
             return;
 
-        Vector2 input = joystick != null ? Vector2.ClampMagnitude(joystick.Input, 1f) : Vector2.zero;
+        Vector2 input = joystick != null ? joystick.Input.normalized : Vector2.zero;
         Vector3 direction = new Vector3(input.x, 0f, input.y);
         Vector3 position = transform.position + direction * (movementSpeed * Time.deltaTime);
         position.x = Mathf.Clamp(position.x, -Mathf.Abs(arenaHalfExtents.x), Mathf.Abs(arenaHalfExtents.x));

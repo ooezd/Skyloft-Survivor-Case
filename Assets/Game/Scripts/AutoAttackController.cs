@@ -5,6 +5,7 @@ public class AutoAttackController : MonoBehaviour
 {
     [SerializeField] private EnemySpawner enemySpawner;
     [SerializeField] private Transform rifle;
+    [SerializeField] private Vector3 rifleAimOffset = new Vector3(0f, 180f, 0f);
     [SerializeField] private Transform muzzle;
     [SerializeField] private Projectile projectilePrefab;
     [SerializeField] private Transform projectilesParent;
@@ -53,7 +54,7 @@ public class AutoAttackController : MonoBehaviour
         {
             Vector3 direction = CurrentTarget.Health.AimPosition - rifle.position;
             if (direction.sqrMagnitude > 0.0001f)
-                rifle.rotation = Quaternion.LookRotation(direction);
+                rifle.rotation = Quaternion.LookRotation(direction) * Quaternion.Euler(rifleAimOffset);
         }
 
         if (Time.time < nextFire || projectilePrefab == null || muzzle == null)
