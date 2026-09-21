@@ -1,7 +1,8 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class VirtualJoystick : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUpHandler
+public class VirtualJoystick : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUpHandler,
+    IInitializePotentialDragHandler
 {
     [SerializeField] private RectTransform background;
     [SerializeField] private RectTransform handle;
@@ -12,13 +13,28 @@ public class VirtualJoystick : MonoBehaviour, IPointerDownHandler, IDragHandler,
 
     private int? activePointerId;
 
+    private void OnEnable() => ResetInput();
+
+    public void OnInitializePotentialDrag(PointerEventData eventData)
+    {
+        eventData.useDragThreshold = false;
+    }
+
     public void OnPointerDown(PointerEventData eventData)
     {
-        if (activePointerId.HasValue || eventData.button != PointerEventData.InputButton.Left)
+        if (!isActiveAndEnabled || activePointerId.HasValue ||
+            eventData.button != PointerEventData.InputButton.Left || background == null || handle == null)
+            return;
+
+        if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            (RectTransform)transform, eventData.position, eventData.pressEventCamera, out Vector2 point))
             return;
 
         activePointerId = eventData.pointerId;
-        OnDrag(eventData);
+        background.anchoredPosition = point;
+        background.gameObject.SetActive(true);
+        handle.anchoredPosition = Vector2.zero;
+        Input = Vector2.zero;
     }
 
     public void OnDrag(PointerEventData eventData)
@@ -61,5 +77,7 @@ public class VirtualJoystick : MonoBehaviour, IPointerDownHandler, IDragHandler,
         Input = Vector2.zero;
         if (handle != null)
             handle.anchoredPosition = Vector2.zero;
+        if (background != null)
+            background.gameObject.SetActive(false);
     }
 }
