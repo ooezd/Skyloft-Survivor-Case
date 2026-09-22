@@ -9,6 +9,9 @@ public class AutoAttackController : MonoBehaviour
     [SerializeField] private Transform muzzle;
     [SerializeField] private Projectile projectilePrefab;
     [SerializeField] private Transform projectilesParent;
+    [SerializeField] private Animator animator;
+    [SerializeField] private Transform aimingVisual;
+    [SerializeField] private float visualAimYawOffset = 32f;
     [SerializeField, Min(0f)] private float attackRange = 8f;
     [SerializeField, Min(0.02f)] private float targetRefreshInterval = 0.2f;
     [SerializeField, Min(0.02f)] private float fireInterval = 0.5f;
@@ -20,12 +23,15 @@ public class AutoAttackController : MonoBehaviour
     private float nextTargetRefresh;
     private float nextFire;
     private Quaternion restingRifleRotation;
+    private Quaternion restingVisualRotation;
 
     private void Awake()
     {
         health = GetComponent<Health>();
         if (rifle != null)
             restingRifleRotation = rifle.localRotation;
+        if (aimingVisual != null)
+            restingVisualRotation = aimingVisual.localRotation;
     }
 
     private void LateUpdate()
@@ -47,7 +53,18 @@ public class AutoAttackController : MonoBehaviour
             CurrentTarget = null;
             if (rifle != null)
                 rifle.localRotation = restingRifleRotation;
+            if (aimingVisual != null)
+                aimingVisual.localRotation = restingVisualRotation;
             return;
+        }
+
+        // Turn the animated visual, not the gameplay root, so the arms follow the aim.
+        if (aimingVisual != null)
+        {
+            Vector3 visualDirection = CurrentTarget.transform.position - aimingVisual.position;
+            visualDirection.y = 0f;
+            if (visualDirection.sqrMagnitude > 0.0001f)
+                aimingVisual.rotation = Quaternion.LookRotation(visualDirection) * Quaternion.Euler(0f, visualAimYawOffset, 0f);
         }
 
         if (rifle != null)
@@ -63,6 +80,11 @@ public class AutoAttackController : MonoBehaviour
         nextFire = Time.time + Mathf.Max(0.02f, fireInterval);
         Projectile projectile = Instantiate(projectilePrefab, muzzle.position, muzzle.rotation, projectilesParent);
         projectile.Initialize(CurrentTarget.Health, projectileDamage);
+        if (animator != null && animator.isActiveAndEnabled)
+        {
+            animator.ResetTrigger("Fire");
+            animator.SetTrigger("Fire");
+        }
     }
 
     private void AcquireTarget()

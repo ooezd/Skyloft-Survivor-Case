@@ -9,6 +9,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Transform arenaCenter;
     [SerializeField] private Vector2 arenaHalfExtents = new Vector2(180f, 180f);
     [SerializeField] private Transform visual;
+    [SerializeField] private Animator animator;
 
     private Health health;
 
@@ -16,10 +17,17 @@ public class PlayerController : MonoBehaviour
 
     private void OnEnable() => health.Died += HandleDeath;
 
-    private void OnDisable() => health.Died -= HandleDeath;
+    private void OnDisable()
+    {
+        health.Died -= HandleDeath;
+        if (animator != null)
+            animator.SetFloat("Speed", 0f);
+    }
 
     private void HandleDeath(Health deadHealth)
     {
+        if (animator != null)
+            animator.enabled = false;
         if (visual != null)
             visual.localRotation *= Quaternion.Euler(0f, 0f, 90f);
     }
@@ -31,11 +39,14 @@ public class PlayerController : MonoBehaviour
 
         Vector2 input = joystick != null ? joystick.Input.normalized : Vector2.zero;
         Vector3 direction = new Vector3(input.x, 0f, input.y);
+        Vector3 previousPosition = transform.position;
         Vector3 position = transform.position + direction * (movementSpeed * Time.deltaTime);
         Vector3 center = arenaCenter != null ? arenaCenter.position : Vector3.zero;
         position.x = Mathf.Clamp(position.x, center.x - Mathf.Abs(arenaHalfExtents.x), center.x + Mathf.Abs(arenaHalfExtents.x));
         position.z = Mathf.Clamp(position.z, center.z - Mathf.Abs(arenaHalfExtents.y), center.z + Mathf.Abs(arenaHalfExtents.y));
         transform.position = position;
+        if (animator != null)
+            animator.SetFloat("Speed", Time.deltaTime > 0f ? (position - previousPosition).magnitude / Time.deltaTime : 0f);
 
         if (direction.sqrMagnitude > 0.0001f)
             transform.rotation = Quaternion.LookRotation(direction);
