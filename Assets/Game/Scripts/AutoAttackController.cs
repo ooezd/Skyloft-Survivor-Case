@@ -4,6 +4,7 @@ using UnityEngine;
 public class AutoAttackController : MonoBehaviour
 {
     [SerializeField] private EnemySpawner enemySpawner;
+    [SerializeField] private AudioManager audioManager;
     [SerializeField] private Transform rifle;
     [SerializeField] private Vector3 rifleAimOffset = new Vector3(0f, 180f, 0f);
     [SerializeField] private Transform muzzle;
@@ -88,6 +89,8 @@ public class AutoAttackController : MonoBehaviour
             animator.ResetTrigger("Fire");
             animator.SetTrigger("Fire");
         }
+        if (audioManager != null)
+            audioManager.PlayShot();
     }
 
     private void AcquireTarget()
