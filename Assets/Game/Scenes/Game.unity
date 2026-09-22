@@ -3030,8 +3030,8 @@ LineRenderer:
       m_RotationOrder: 4
     colorGradient:
       serializedVersion: 2
-      key0: {r: 0.2784314, g: 0.8784314, b: 0.9490196, a: 0.8509804}
-      key1: {r: 0.2784314, g: 0.8784314, b: 0.9490196, a: 0.8509804}
+      key0: {r: 0.38039216, g: 0.9490196, b: 0.2784314, a: 0.23529412}
+      key1: {r: 0.37835383, g: 0.9490196, b: 0.27843136, a: 0.23529412}
       key2: {r: 0, g: 0, b: 0, a: 0}
       key3: {r: 0, g: 0, b: 0, a: 0}
       key4: {r: 0, g: 0, b: 0, a: 0}
@@ -3055,7 +3055,7 @@ LineRenderer:
       atime6: 0
       atime7: 0
       m_Mode: 0
-      m_ColorSpace: -1
+      m_ColorSpace: 0
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
     numCornerVertices: 0
@@ -3337,7 +3337,6 @@ MonoBehaviour:
   enemyPrefab: {fileID: 2687011550180266423, guid: 4941f1db08f889742a3b36837c4ce21f, type: 3}
   player: {fileID: 1885446823}
   enemiesParent: {fileID: 833646092}
-  spawnInterval: 1
   spawnRadius: 14
   maximumActiveEnemies: 20
   killCount: 0
@@ -3819,7 +3818,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 0.7
+  m_Volume: 0.5
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -4363,7 +4362,7 @@ MonoBehaviour:
   musicClip: {fileID: 8300000, guid: 2fa5e98aeea3f2347bb906a7aaced055, type: 3}
   shotClip: {fileID: 8300000, guid: a57b0122738fc2a4f893cf542c717864, type: 3}
   musicVolume: 0.22
-  sfxVolume: 0.7
+  sfxVolume: 0.5
 --- !u!4 &1990668310
 Transform:
   m_ObjectHideFlags: 0
@@ -4754,8 +4753,8 @@ LineRenderer:
       m_RotationOrder: 4
     colorGradient:
       serializedVersion: 2
-      key0: {r: 1, g: 0.55, b: 0.12, a: 0.72}
-      key1: {r: 1, g: 0.55, b: 0.12, a: 0.72}
+      key0: {r: 1, g: 0.55, b: 0.12, a: 0.39215687}
+      key1: {r: 1, g: 0.55, b: 0.12, a: 0.39215687}
       key2: {r: 0, g: 0, b: 0, a: 0}
       key3: {r: 0, g: 0, b: 0, a: 0}
       key4: {r: 0, g: 0, b: 0, a: 0}
@@ -4779,7 +4778,7 @@ LineRenderer:
       atime6: 0
       atime7: 0
       m_Mode: 0
-      m_ColorSpace: -1
+      m_ColorSpace: 0
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
     numCornerVertices: 0

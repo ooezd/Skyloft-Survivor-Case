@@ -12,6 +12,10 @@ public class EnemyController : MonoBehaviour
     [SerializeField, Min(0f)] private float separationWeight = 2.2f;
     [SerializeField, Range(0.15f, 0.3f)] private float deathDuration = 0.24f;
 
+    [SerializeField, Range(0.15f, 0.6f)] private float spawnDuration = 0.35f;
+    private Coroutine spawnSequence;
+    private bool isSpawning;
+
     public Health Health { get; private set; }
     private Health targetHealth;
     private float nextDamageTime;
@@ -24,12 +28,42 @@ public class EnemyController : MonoBehaviour
             targetHealth = target.GetComponent<Health>();
     }
 
-    private void OnEnable() => Health.Died += HandleDeath;
+    private void OnEnable()
+    {
+        Health.Died += HandleDeath;
+        spawnSequence = StartCoroutine(ShowSpawn());
+    }
+
+    private System.Collections.IEnumerator ShowSpawn()
+    {
+        isSpawning = true;
+        Vector3 scale = transform.localScale;
+        float elapsed = 0f;
+        while (elapsed < spawnDuration)
+        {
+            float t = Mathf.Clamp01(elapsed / spawnDuration);
+            // Ease out with a small overshoot, then settle at the prefab scale.
+            float u = t - 1f;
+            float eased = 1f + 2.70158f * u * u * u + 1.70158f * u * u;
+            transform.localScale = scale * Mathf.LerpUnclamped(0.15f, 1f, eased);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+        transform.localScale = scale;
+        isSpawning = false;
+        spawnSequence = null;
+    }
 
     private void OnDisable() => Health.Died -= HandleDeath;
 
     private void HandleDeath(Health deadHealth)
     {
+        if (spawnSequence != null)
+        {
+            StopCoroutine(spawnSequence);
+            spawnSequence = null;
+        }
+        isSpawning = false;
         // Health raises Died immediately, so the spawner removes/counts this enemy now.
         foreach (Animator animator in GetComponentsInChildren<Animator>())
             animator.enabled = false;
@@ -87,7 +121,7 @@ public class EnemyController : MonoBehaviour
 
     private void Update()
     {
-        if (!Health.IsAlive || target == null || targetHealth == null || !targetHealth.IsAlive)
+        if (isSpawning || !Health.IsAlive || target == null || targetHealth == null || !targetHealth.IsAlive)
             return;
 
         Vector3 destination = new Vector3(target.position.x, transform.position.y, target.position.z);

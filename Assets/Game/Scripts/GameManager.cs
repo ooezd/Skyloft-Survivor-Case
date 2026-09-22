@@ -31,6 +31,9 @@ public class GameManager : MonoBehaviour
 
     public WaveDirector Waves { get; } = new WaveDirector();
 
+    [Tooltip("Extra pause after the player death animation, before the result screen.")]
+    [SerializeField, Min(0f)] private float deathResultDelay = 0.45f;
+    private bool resultVisible;
     private bool replayRequested;
 
     private void Start()
@@ -106,6 +109,22 @@ public class GameManager : MonoBehaviour
 
         resultTitle.text = result == RunState.Won ? "YOU SURVIVED" : "YOU DIED";
         resultKills.text = $"Run Kills: {RunKills}\nTotal Kills: {TotalKills}";
+        if (result == RunState.Lost)
+            StartCoroutine(ShowDeathThenResult());
+        else
+            ShowResult();
+    }
+
+    private System.Collections.IEnumerator ShowDeathThenResult()
+    {
+        yield return playerMovement.ShowDeath();
+        yield return new WaitForSecondsRealtime(deathResultDelay);
+        ShowResult();
+    }
+
+    private void ShowResult()
+    {
+        resultVisible = true;
         resultPanel.SetActive(true);
     }
 
@@ -129,7 +148,7 @@ public class GameManager : MonoBehaviour
 
     public void Replay()
     {
-        if ((State != RunState.Won && State != RunState.Lost) || replayRequested)
+        if (!resultVisible || (State != RunState.Won && State != RunState.Lost) || replayRequested)
             return;
 
         replayRequested = true;
