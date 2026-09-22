@@ -64,6 +64,7 @@ public class EnemySpawner : MonoBehaviour
         Vector3 offset = new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle)) * Mathf.Max(1f, spawnRadius);
         EnemyController enemy = Instantiate(enemyPrefab, player.position + offset, Quaternion.identity, enemiesParent);
         enemy.SetTarget(player);
+        enemy.SetSpawner(this);
         activeEnemies.Add(enemy);
         enemy.Health.Died += HandleEnemyDeath;
     }

@@ -24,8 +24,9 @@ public class CombatReadout : MonoBehaviour
         displayedHealth = playerHealth.CurrentHealth;
         displayedKills = enemySpawner.KillCount;
         displayedSeconds = seconds;
-        label.text = $"Health: {displayedHealth}/{playerHealth.MaxHealth}   Kills: {displayedKills}\n" +
-            $"Time: {seconds / 60:00}:{seconds % 60:00}";
+        label.text = $"<size=18><color=#A9C4CF>HEALTH</color></size>  <b>{displayedHealth}/{playerHealth.MaxHealth}</b>\n" +
+            $"<size=18><color=#A9C4CF>KILLS</color></size>  <b>{displayedKills}</b>     " +
+            $"<size=18><color=#A9C4CF>TIME</color></size>  <b>{seconds / 60:00}:{seconds % 60:00}</b>";
         label.color = playerHealth.IsAlive ? Color.white : new Color(1f, 0.35f, 0.35f);
     }
 }

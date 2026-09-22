@@ -51,6 +51,9 @@ MonoBehaviour:
   contactRange: 1.2
   contactDamage: 10
   damageInterval: 1
+  separationRadius: 1.5
+  separationWeight: 2.2
+  deathDuration: 0.24
 --- !u!114 &8567904198753377432
 MonoBehaviour:
   m_ObjectHideFlags: 0

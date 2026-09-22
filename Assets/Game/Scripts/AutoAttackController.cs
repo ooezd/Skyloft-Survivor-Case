@@ -7,6 +7,7 @@ public class AutoAttackController : MonoBehaviour
     [SerializeField] private Transform rifle;
     [SerializeField] private Vector3 rifleAimOffset = new Vector3(0f, 180f, 0f);
     [SerializeField] private Transform muzzle;
+    [SerializeField] private ParticleSystem muzzleFlashPrefab;
     [SerializeField] private Projectile projectilePrefab;
     [SerializeField] private Transform projectilesParent;
     [SerializeField] private Animator animator;
@@ -80,6 +81,8 @@ public class AutoAttackController : MonoBehaviour
         nextFire = Time.time + Mathf.Max(0.02f, fireInterval);
         Projectile projectile = Instantiate(projectilePrefab, muzzle.position, muzzle.rotation, projectilesParent);
         projectile.Initialize(CurrentTarget.Health, projectileDamage);
+        if (muzzleFlashPrefab != null)
+            Instantiate(muzzleFlashPrefab, muzzle.position, muzzle.rotation, muzzle);
         if (animator != null && animator.isActiveAndEnabled)
         {
             animator.ResetTrigger("Fire");

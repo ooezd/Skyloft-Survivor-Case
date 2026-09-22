@@ -5,6 +5,7 @@ public class Projectile : MonoBehaviour
     [SerializeField, Min(0.1f)] private float speed = 18f;
     [SerializeField, Min(0f)] private float impactRadius = 0.2f;
     [SerializeField, Min(0.1f)] private float lifetime = 5f;
+    [SerializeField] private ParticleSystem impactPrefab;
 
     private Health target;
     private int damage;
@@ -32,7 +33,10 @@ public class Projectile : MonoBehaviour
         transform.position = Vector3.MoveTowards(transform.position, destination, speed * Time.deltaTime);
         if ((destination - transform.position).sqrMagnitude <= impactRadius * impactRadius)
         {
+            int healthBefore = target.CurrentHealth;
             target.TakeDamage(damage);
+            if (impactPrefab != null && target.CurrentHealth < healthBefore)
+                Instantiate(impactPrefab, destination, Quaternion.identity);
             Destroy(gameObject);
         }
     }
