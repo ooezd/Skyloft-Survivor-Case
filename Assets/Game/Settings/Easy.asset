@@ -13,5 +13,7 @@ MonoBehaviour:
   m_Name: Easy
   m_EditorClassIdentifier: Assembly-CSharp::DifficultyConfig
   displayName: Easy
-  spawnInterval: 1.2
+  description: Easy population cap with increasing wave quotas. Edit the referenced
+    Wave Plan to tune counts and spawn timing.
   maximumActiveEnemies: 15
+  wavePlan: {fileID: 11400000, guid: f802128706e33c142bc804e47e7fde7f, type: 2}

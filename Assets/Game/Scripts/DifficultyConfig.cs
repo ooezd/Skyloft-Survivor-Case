@@ -1,13 +1,19 @@
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "Skyloft/Difficulty")]
+[CreateAssetMenu(menuName = "Skyloft/Difficulty Profile", fileName = "New Difficulty")]
 public class DifficultyConfig : ScriptableObject
 {
+    [Header("Difficulty")]
     [SerializeField] private string displayName = "Normal";
-    [SerializeField, Min(0.1f)] private float spawnInterval = 0.8f;
+    [TextArea, SerializeField] private string description;
+    [Header("Enemy Population")]
+    [Tooltip("Maximum living enemies across all waves, not the total enemies in one wave.")]
     [SerializeField, Min(1)] private int maximumActiveEnemies = 25;
+    [Header("Wave Schedule")]
+    [Tooltip("Ordered wave settings. The schedule must cover the entire match.")]
+    [SerializeField] private WavePlanConfig wavePlan;
 
     public string DisplayName => displayName;
-    public float SpawnInterval => spawnInterval;
-    public int MaximumActiveEnemies => maximumActiveEnemies;
+    public int MaximumActiveEnemies => Mathf.Max(1, maximumActiveEnemies);
+    public WavePlanConfig WavePlan => wavePlan;
 }

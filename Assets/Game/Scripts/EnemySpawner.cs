@@ -6,12 +6,10 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] private EnemyController enemyPrefab;
     [SerializeField] private Transform player;
     [SerializeField] private Transform enemiesParent;
-    [SerializeField, Min(0.1f)] private float spawnInterval = 1f;
     [SerializeField, Min(1f)] private float spawnRadius = 14f;
     [SerializeField, Min(0)] private int maximumActiveEnemies = 20;
 
     private readonly List<EnemyController> activeEnemies = new List<EnemyController>();
-    private float timeUntilSpawn;
     private Health playerHealth;
     [SerializeField] private int killCount;
 
@@ -20,9 +18,7 @@ public class EnemySpawner : MonoBehaviour
 
     public void ApplyDifficulty(DifficultyConfig difficulty)
     {
-        spawnInterval = Mathf.Max(0.1f, difficulty.SpawnInterval);
         maximumActiveEnemies = Mathf.Max(1, difficulty.MaximumActiveEnemies);
-        timeUntilSpawn = 0f;
     }
 
     private void Awake()
@@ -46,19 +42,14 @@ public class EnemySpawner : MonoBehaviour
                 enemy.Health.Died -= HandleEnemyDeath;
     }
 
-    private void Update()
+    public bool TrySpawnEnemy()
     {
-        if (enemyPrefab == null || player == null || playerHealth == null || !playerHealth.IsAlive)
-            return;
+        if (!isActiveAndEnabled || enemyPrefab == null || player == null || playerHealth == null || !playerHealth.IsAlive)
+            return false;
 
-        timeUntilSpawn -= Time.deltaTime;
-        if (timeUntilSpawn > 0f)
-            return;
-
-        timeUntilSpawn = Mathf.Max(0.1f, spawnInterval);
         activeEnemies.RemoveAll(enemy => enemy == null);
         if (activeEnemies.Count >= maximumActiveEnemies)
-            return;
+            return false;
 
         float angle = Random.Range(0f, Mathf.PI * 2f);
         Vector3 offset = new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle)) * Mathf.Max(1f, spawnRadius);
@@ -67,5 +58,6 @@ public class EnemySpawner : MonoBehaviour
         enemy.SetSpawner(this);
         activeEnemies.Add(enemy);
         enemy.Health.Died += HandleEnemyDeath;
+        return true;
     }
 }

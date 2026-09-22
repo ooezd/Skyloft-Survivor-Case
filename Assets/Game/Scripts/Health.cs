@@ -15,6 +15,8 @@ public class Health : MonoBehaviour
     public bool IsAlive => currentHealth > 0;
     public Vector3 AimPosition => transform.position + Vector3.up * aimHeight;
     public event Action<Health> Died;
+    public event Action<Health> Damaged;
+    public event Action<Health> Changed;
 
     private Vector3 originalScale;
     private float pulseRemaining;
@@ -33,11 +35,23 @@ public class Health : MonoBehaviour
 
         currentHealth = Mathf.Max(0, currentHealth - damage);
         pulseRemaining = hitPulseDuration;
+        Changed?.Invoke(this);
+        Damaged?.Invoke(this);
         if (!IsAlive)
         {
             ResetPulse();
             Died?.Invoke(this);
         }
+    }
+
+    // No healing pickup/mechanic is added; future recovery uses the same UI event.
+    public void Heal(int amount)
+    {
+        if (!isActiveAndEnabled || !IsAlive || amount <= 0 || currentHealth >= maxHealth)
+            return;
+
+        currentHealth += Mathf.Min(amount, maxHealth - currentHealth);
+        Changed?.Invoke(this);
     }
 
     private void Update()

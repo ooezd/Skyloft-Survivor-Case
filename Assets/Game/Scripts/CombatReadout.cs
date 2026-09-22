@@ -11,6 +11,7 @@ public class CombatReadout : MonoBehaviour
     private int displayedHealth = -1;
     private int displayedKills = -1;
     private int displayedSeconds = -1;
+    private int displayedWave = -1;
 
     private void Update()
     {
@@ -18,13 +19,15 @@ public class CombatReadout : MonoBehaviour
             return;
         int seconds = Mathf.CeilToInt(gameManager.RemainingTime);
         if (displayedHealth == playerHealth.CurrentHealth && displayedKills == enemySpawner.KillCount &&
-            displayedSeconds == seconds)
+            displayedSeconds == seconds && displayedWave == gameManager.Waves.WaveNumber)
             return;
 
         displayedHealth = playerHealth.CurrentHealth;
         displayedKills = enemySpawner.KillCount;
         displayedSeconds = seconds;
-        label.text = $"<size=18><color=#A9C4CF>HEALTH</color></size>  <b>{displayedHealth}/{playerHealth.MaxHealth}</b>\n" +
+        displayedWave = gameManager.Waves.WaveNumber;
+        label.text = $"<size=18><color=#A9C4CF>HEALTH</color></size>  <b>{displayedHealth}/{playerHealth.MaxHealth}</b>     " +
+            $"<size=18><color=#A9C4CF>WAVE</color></size>  <b>{displayedWave}/{gameManager.Waves.WaveCount}</b>\n" +
             $"<size=18><color=#A9C4CF>KILLS</color></size>  <b>{displayedKills}</b>     " +
             $"<size=18><color=#A9C4CF>TIME</color></size>  <b>{seconds / 60:00}:{seconds % 60:00}</b>";
         label.color = playerHealth.IsAlive ? Color.white : new Color(1f, 0.35f, 0.35f);

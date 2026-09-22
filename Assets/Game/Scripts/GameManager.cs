@@ -29,6 +29,8 @@ public class GameManager : MonoBehaviour
     public int TotalKills { get; private set; }
     public DifficultyConfig SelectedDifficulty { get; private set; }
 
+    public WaveDirector Waves { get; } = new WaveDirector();
+
     private bool replayRequested;
 
     private void Start()
@@ -46,12 +48,23 @@ public class GameManager : MonoBehaviour
         if (State != RunState.SelectingDifficulty || difficulty == null)
             return;
 
+        if (difficulty.WavePlan == null)
+        {
+            Debug.LogError($"{difficulty.name}: assign a Wave Plan before starting.", difficulty);
+            return;
+        }
+        if (!difficulty.WavePlan.ValidateForMatch(matchDuration, out string error))
+        {
+            Debug.LogError($"{difficulty.name}: {error}", difficulty);
+            return;
+        }
         SelectedDifficulty = difficulty;
         enemySpawner.ApplyDifficulty(difficulty);
         RemainingTime = Mathf.Max(0.1f, matchDuration);
         State = RunState.Playing;
         difficultyPanel.SetActive(false);
         SetGameplayActive(true);
+        Waves.Begin(difficulty.WavePlan);
     }
 
     private void Update()
@@ -67,7 +80,11 @@ public class GameManager : MonoBehaviour
 
         RemainingTime = Mathf.Max(0f, RemainingTime - Time.deltaTime);
         if (RemainingTime <= 0f)
+        {
             FinishRun(RunState.Won);
+            return;
+        }
+        Waves.Tick(Mathf.Max(0.1f, matchDuration) - RemainingTime, enemySpawner.TrySpawnEnemy);
     }
 
     private void HandlePlayerDeath(Health health) => FinishRun(RunState.Lost);
@@ -79,6 +96,7 @@ public class GameManager : MonoBehaviour
 
         // Latch the result before stopping objects or saving: callbacks cannot count twice.
         State = result;
+        Waves.Stop();
         SetGameplayActive(false);
         DestroyChildren(enemies);
         DestroyChildren(projectiles);

@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 330590545483729295}
   - component: {fileID: 2687011550180266423}
   - component: {fileID: 8567904198753377432}
+  - component: {fileID: 2674240858788200850}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Untagged
@@ -72,6 +73,22 @@ MonoBehaviour:
   hitPulseDuration: 0.15
   hitPulseScale: 1.18
   aimHeight: 1.1
+--- !u!114 &2674240858788200850
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6872769478474117672}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7725d35abc0b544abec261adc4b63ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DamageFlash
+  modelRenderers:
+  - {fileID: 5386179663640554302}
+  flashMaterial: {fileID: 2100000, guid: 1e21cad476659c349a9b8db33fbac530, type: 2}
+  duration: 0.05
 --- !u!1 &7234807317432627571
 GameObject:
   m_ObjectHideFlags: 0
@@ -180,5 +197,10 @@ PrefabInstance:
 --- !u!4 &1562185118659601051 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 92368a8c7072cb44387d31a3b2e2c73c, type: 3}
+  m_PrefabInstance: {fileID: 1308091645667181936}
+  m_PrefabAsset: {fileID: 0}
+--- !u!137 &5386179663640554302 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -2839295581537669554, guid: 92368a8c7072cb44387d31a3b2e2c73c, type: 3}
   m_PrefabInstance: {fileID: 1308091645667181936}
   m_PrefabAsset: {fileID: 0}

@@ -13,5 +13,7 @@ MonoBehaviour:
   m_Name: Hard
   m_EditorClassIdentifier: Assembly-CSharp::DifficultyConfig
   displayName: Hard
-  spawnInterval: 0.5
-  maximumActiveEnemies: 40
+  description: Hard population cap with increasing wave quotas. Edit the referenced
+    Wave Plan to tune counts and spawn timing.
+  maximumActiveEnemies: 100
+  wavePlan: {fileID: 11400000, guid: 118b2d9a2a5da634cb420f1edda45a5d, type: 2}

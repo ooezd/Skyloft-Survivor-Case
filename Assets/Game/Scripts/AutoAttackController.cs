@@ -13,7 +13,9 @@ public class AutoAttackController : MonoBehaviour
     [SerializeField] private Transform projectilesParent;
     [SerializeField] private Animator animator;
     [SerializeField] private Transform aimingVisual;
+    [SerializeField] private LineRenderer attackRangeRingRenderer;
     [SerializeField] private float visualAimYawOffset = 32f;
+    [SerializeField, Min(1f)] private float aimRotationSpeed = 720f;
     [SerializeField, Min(0f)] private float attackRange = 8f;
     [SerializeField, Min(0.02f)] private float targetRefreshInterval = 0.2f;
     [SerializeField, Min(0.02f)] private float fireInterval = 0.5f;
@@ -26,6 +28,9 @@ public class AutoAttackController : MonoBehaviour
     private float nextFire;
     private Quaternion restingRifleRotation;
     private Quaternion restingVisualRotation;
+    private Quaternion smoothedRifleRotation;
+    private Quaternion smoothedVisualRotation;
+    private const int AttackRangeRingSegments = 96;
 
     private void Awake()
     {
@@ -34,6 +39,37 @@ public class AutoAttackController : MonoBehaviour
             restingRifleRotation = rifle.localRotation;
         if (aimingVisual != null)
             restingVisualRotation = aimingVisual.localRotation;
+
+        UpdateAttackRangeRing();
+    }
+
+    private void UpdateAttackRangeRing()
+    {
+        if (attackRangeRingRenderer == null)
+            return;
+
+        attackRangeRingRenderer.positionCount = AttackRangeRingSegments;
+        float radius = Mathf.Max(0f, attackRange);
+        for (int i = 0; i < AttackRangeRingSegments; i++)
+        {
+            float angle = i * (Mathf.PI * 2f / AttackRangeRingSegments);
+            attackRangeRingRenderer.SetPosition(i, new Vector3(Mathf.Cos(angle) * radius, 0f,
+                Mathf.Sin(angle) * radius));
+        }
+    }
+
+    private void OnValidate()
+    {
+        UpdateAttackRangeRing();
+    }
+
+    private void OnEnable()
+    {
+        // The idle animation can move the rifle while gameplay is disabled in menus.
+        if (rifle != null)
+            smoothedRifleRotation = rifle.rotation;
+        if (aimingVisual != null)
+            smoothedVisualRotation = aimingVisual.rotation;
     }
 
     private void LateUpdate()
@@ -53,10 +89,12 @@ public class AutoAttackController : MonoBehaviour
         if (!IsValidTarget(CurrentTarget))
         {
             CurrentTarget = null;
-            if (rifle != null)
-                rifle.localRotation = restingRifleRotation;
             if (aimingVisual != null)
-                aimingVisual.localRotation = restingVisualRotation;
+                SmoothAim(aimingVisual, ref smoothedVisualRotation,
+                    ParentRotation(aimingVisual) * restingVisualRotation);
+            if (rifle != null)
+                SmoothAim(rifle, ref smoothedRifleRotation,
+                    ParentRotation(rifle) * restingRifleRotation);
             return;
         }
 
@@ -66,14 +104,16 @@ public class AutoAttackController : MonoBehaviour
             Vector3 visualDirection = CurrentTarget.transform.position - aimingVisual.position;
             visualDirection.y = 0f;
             if (visualDirection.sqrMagnitude > 0.0001f)
-                aimingVisual.rotation = Quaternion.LookRotation(visualDirection) * Quaternion.Euler(0f, visualAimYawOffset, 0f);
+                SmoothAim(aimingVisual, ref smoothedVisualRotation,
+                    Quaternion.LookRotation(visualDirection) * Quaternion.Euler(0f, visualAimYawOffset, 0f));
         }
 
         if (rifle != null)
         {
             Vector3 direction = CurrentTarget.Health.AimPosition - rifle.position;
             if (direction.sqrMagnitude > 0.0001f)
-                rifle.rotation = Quaternion.LookRotation(direction) * Quaternion.Euler(rifleAimOffset);
+                SmoothAim(rifle, ref smoothedRifleRotation,
+                    Quaternion.LookRotation(direction) * Quaternion.Euler(rifleAimOffset));
         }
 
         if (Time.time < nextFire || projectilePrefab == null || muzzle == null)
@@ -92,6 +132,17 @@ public class AutoAttackController : MonoBehaviour
         if (audioManager != null)
             audioManager.PlayShot();
     }
+
+    private void SmoothAim(Transform aim, ref Quaternion rotation, Quaternion desired)
+    {
+        // Keep world-space history so locomotion turns and animated hand motion
+        // cannot introduce a new snap before this LateUpdate.
+        rotation = Quaternion.RotateTowards(rotation, desired, aimRotationSpeed * Time.deltaTime);
+        aim.rotation = rotation;
+    }
+
+    private static Quaternion ParentRotation(Transform child) =>
+        child.parent != null ? child.parent.rotation : Quaternion.identity;
 
     private void AcquireTarget()
     {

@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d7e15fcbfa6d934da976aa693fc5655, type: 3}
+  m_Name: Easy Waves
+  m_EditorClassIdentifier: Assembly-CSharp::WavePlanConfig
+  description: 'Easy: six 30-second waves. Spawn quota grows each wave; remaining
+    enemies carry over. Unspawned quota expires at the boundary.'
+  waves:
+  - name: Wave 1 - 0-30s
+    duration: 30
+    enemyCount: 8
+    spawnInterval: 1.2
+  - name: Wave 2 - 30-60s
+    duration: 30
+    enemyCount: 10
+    spawnInterval: 1.2
+  - name: Wave 3 - 60-90s
+    duration: 30
+    enemyCount: 12
+    spawnInterval: 1.2
+  - name: Wave 4 - 90-120s
+    duration: 30
+    enemyCount: 14
+    spawnInterval: 1.2
+  - name: Wave 5 - 120-150s
+    duration: 30
+    enemyCount: 16
+    spawnInterval: 1.2
+  - name: Wave 6 - 150-180s
+    duration: 30
+    enemyCount: 18
+    spawnInterval: 1.2

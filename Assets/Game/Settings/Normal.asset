@@ -13,5 +13,7 @@ MonoBehaviour:
   m_Name: Normal
   m_EditorClassIdentifier: Assembly-CSharp::DifficultyConfig
   displayName: Normal
-  spawnInterval: 0.8
+  description: Normal population cap with increasing wave quotas. Edit the referenced
+    Wave Plan to tune counts and spawn timing.
   maximumActiveEnemies: 25
+  wavePlan: {fileID: 11400000, guid: b7384c5293c414640a18013cc1c9e3d7, type: 2}
