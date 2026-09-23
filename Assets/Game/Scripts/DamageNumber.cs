@@ -27,7 +27,10 @@ public sealed class DamageNumber : MonoBehaviour
     private float elapsed;
     private bool initialized;
 
-    public void Initialize(int damage, Vector3 position, Camera camera, Canvas owner)
+    public void Initialize(int damage, Vector3 position, Camera camera, Canvas owner) =>
+        Initialize(damage.ToString(CultureInfo.InvariantCulture), position, camera, owner);
+
+    public void Initialize(string message, Vector3 position, Camera camera, Canvas owner)
     {
         if (label == null || opacity == null || camera == null || owner == null)
         {
@@ -45,7 +48,7 @@ public sealed class DamageNumber : MonoBehaviour
         originalScale = rect.localScale;
         originalAlpha = opacity.alpha;
         elapsed = 0f;
-        label.text = damage.ToString(CultureInfo.InvariantCulture);
+        label.text = message;
         initialized = true;
         UpdateVisual(0f);
     }

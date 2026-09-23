@@ -378,6 +378,7 @@ MonoBehaviour:
   playerMovement: {fileID: 1885446824}
   playerAttack: {fileID: 1885446825}
   enemySpawner: {fileID: 1448265646}
+  upgradeSpawner: {fileID: 409495409}
   enemies: {fileID: 833646092}
   projectiles: {fileID: 1629359720}
   joystick: {fileID: 1976968458}
@@ -386,6 +387,7 @@ MonoBehaviour:
   resultPanel: {fileID: 1464972374}
   resultTitle: {fileID: 1349409974}
   resultKills: {fileID: 928914262}
+  deathResultDelay: 0.45
 --- !u!4 &269648308
 Transform:
   m_ObjectHideFlags: 0
@@ -554,6 +556,60 @@ MonoBehaviour:
   target: {fileID: 1885446823}
   offset: {x: 0, y: 18, z: -12}
   lookHeight: 0.8
+--- !u!1 &409495408
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 409495410}
+  - component: {fileID: 409495409}
+  m_Layer: 0
+  m_Name: Upgrade Pickups
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &409495409
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 409495408}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2edd147027514236900a283c1141b5f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UpgradePickupSpawner
+  pickupPrefab: {fileID: 51114593698692268, guid: b3a77c083f0a0a64b98860e743543bcc, type: 3}
+  player: {fileID: 1885446824}
+  playerAttack: {fileID: 1885446825}
+  playerHealth: {fileID: 1885446826}
+  firstSpawnDelay: 2
+  spawnInterval: 10
+  pickupLifetime: 25
+  minimumDistance: 4
+  maximumDistance: 8
+  groundOffset: 0.25
+--- !u!4 &409495410
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 409495408}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -3324,6 +3380,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DamageNumberCanvas
   worldCamera: {fileID: 330585545}
   numberPrefab: {fileID: 4688240497080586879, guid: 741e74fb3ee19a14798dfef417e079ab, type: 3}
+  upgradeTextPrefab: {fileID: 2421259790855449946, guid: 69cdbc3a473dcaa42a1d3c511a8a32eb, type: 3}
   worldOffset: {x: 0, y: 0.9, z: 0}
 --- !u!225 &1440733000
 CanvasGroup:
@@ -4117,6 +4174,7 @@ GameObject:
   - component: {fileID: 1885446824}
   - component: {fileID: 1885446826}
   - component: {fileID: 1885446825}
+  - component: {fileID: 1885446827}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -4160,6 +4218,7 @@ MonoBehaviour:
   arenaHalfExtents: {x: 180, y: 180}
   visual: {fileID: 34218981}
   animator: {fileID: 1207395122}
+  deathDuration: 0.55
 --- !u!114 &1885446825
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4207,6 +4266,29 @@ MonoBehaviour:
   hitPulseDuration: 0.15
   hitPulseScale: 1.18
   aimHeight: 1.1
+--- !u!136 &1885446827
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1885446822}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.45
+  m_Height: 1.8
+  m_Direction: 1
+  m_Center: {x: 0, y: 0.9, z: 0}
 --- !u!114 &1900874086
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4910,3 +4992,4 @@ SceneRoots:
   m_Roots:
   - {fileID: 1511020544}
   - {fileID: 1440733003}
+  - {fileID: 409495410}

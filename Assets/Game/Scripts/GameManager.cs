@@ -15,6 +15,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private PlayerController playerMovement;
     [SerializeField] private AutoAttackController playerAttack;
     [SerializeField] private EnemySpawner enemySpawner;
+    [SerializeField] private UpgradePickupSpawner upgradeSpawner;
     [SerializeField] private Transform enemies;
     [SerializeField] private Transform projectiles;
     [SerializeField] private VirtualJoystick joystick;
@@ -67,6 +68,7 @@ public class GameManager : MonoBehaviour
             Debug.LogError($"{difficulty.name}: {error}", difficulty);
             return;
         }
+        playerAttack.ResetRunUpgrades();
         SelectedDifficulty = difficulty;
         enemySpawner.ApplyDifficulty(difficulty);
         RemainingTime = Mathf.Max(0.1f, matchDuration);
@@ -74,6 +76,8 @@ public class GameManager : MonoBehaviour
         difficultyPanel.SetActive(false);
         SetGameplayActive(true);
         Waves.Begin(difficulty.WavePlan);
+        if (upgradeSpawner != null)
+            upgradeSpawner.BeginRun();
     }
 
     private void Update()
@@ -106,6 +110,9 @@ public class GameManager : MonoBehaviour
         // Latch the result before stopping objects or saving: callbacks cannot count twice.
         State = result;
         Waves.Stop();
+        if (upgradeSpawner != null)
+            upgradeSpawner.EndRun();
+        playerAttack.ResetRunUpgrades();
         SetGameplayActive(false);
         DestroyChildren(enemies);
         DestroyChildren(projectiles);

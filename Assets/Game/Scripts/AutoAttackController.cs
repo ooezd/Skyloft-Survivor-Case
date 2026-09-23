@@ -22,6 +22,27 @@ public class AutoAttackController : MonoBehaviour
     [SerializeField, Min(1)] private int projectileDamage = 25;
 
     public EnemyController CurrentTarget { get; private set; }
+    public float DamageMultiplier { get; private set; } = 1f;
+    public float AttackFrequencyMultiplier { get; private set; } = 1f;
+    public int CurrentDamage => Mathf.Max(1, Mathf.RoundToInt(projectileDamage * DamageMultiplier));
+    public float CurrentFireInterval => Mathf.Max(0.02f, fireInterval / AttackFrequencyMultiplier);
+
+    public void ApplyRunUpgrade(bool damageUpgrade)
+    {
+        if (damageUpgrade)
+            DamageMultiplier *= 1.1f;
+        else
+        {
+            AttackFrequencyMultiplier *= 1.1f;
+            nextFire = Time.time + Mathf.Max(0f, nextFire - Time.time) / 1.1f;
+        }
+    }
+
+    public void ResetRunUpgrades()
+    {
+        DamageMultiplier = AttackFrequencyMultiplier = 1f;
+        nextFire = 0f;
+    }
 
     private Health health;
     private float nextTargetRefresh;
@@ -119,9 +140,9 @@ public class AutoAttackController : MonoBehaviour
         if (Time.time < nextFire || projectilePrefab == null || muzzle == null)
             return;
 
-        nextFire = Time.time + Mathf.Max(0.02f, fireInterval);
+        nextFire = Time.time + CurrentFireInterval;
         Projectile projectile = Instantiate(projectilePrefab, muzzle.position, muzzle.rotation, projectilesParent);
-        projectile.Initialize(CurrentTarget.Health, projectileDamage);
+        projectile.Initialize(CurrentTarget.Health, CurrentDamage);
         if (muzzleFlashPrefab != null)
             Instantiate(muzzleFlashPrefab, muzzle.position, muzzle.rotation, muzzle);
         if (animator != null && animator.isActiveAndEnabled)

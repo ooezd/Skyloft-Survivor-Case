@@ -5,6 +5,7 @@ public sealed class DamageNumberCanvas : MonoBehaviour
 {
     [SerializeField] private Camera worldCamera;
     [SerializeField] private DamageNumber numberPrefab;
+    [SerializeField] private DamageNumber upgradeTextPrefab;
     [Tooltip("Offset from the enemy's aim position in world units.")]
     [SerializeField] private Vector3 worldOffset = new Vector3(0f, 0.9f, 0f);
 
@@ -28,6 +29,17 @@ public sealed class DamageNumberCanvas : MonoBehaviour
         if (instance == null || damage <= 0)
             return;
         instance.Spawn(position, damage);
+    }
+
+    public static void ShowUpgrade(Vector3 position, string message)
+    {
+        if (instance == null || string.IsNullOrEmpty(message) || instance.worldCamera == null)
+            return;
+        DamageNumber prefab = instance.upgradeTextPrefab != null ? instance.upgradeTextPrefab : instance.numberPrefab;
+        if (prefab == null)
+            return;
+        DamageNumber number = Instantiate(prefab, instance.transform, false);
+        number.Initialize(message, position + instance.worldOffset, instance.worldCamera, instance.canvas);
     }
 
     private void Spawn(Vector3 position, int damage)

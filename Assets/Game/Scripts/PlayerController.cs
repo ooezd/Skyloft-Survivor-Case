@@ -58,15 +58,21 @@ public class PlayerController : MonoBehaviour
         Vector3 direction = new Vector3(input.x, 0f, input.y);
         Vector3 previousPosition = transform.position;
         Vector3 position = transform.position + direction * (movementSpeed * Time.deltaTime);
-        Vector3 center = arenaCenter != null ? arenaCenter.position : Vector3.zero;
-        position.x = Mathf.Clamp(position.x, center.x - Mathf.Abs(arenaHalfExtents.x), center.x + Mathf.Abs(arenaHalfExtents.x));
-        position.z = Mathf.Clamp(position.z, center.z - Mathf.Abs(arenaHalfExtents.y), center.z + Mathf.Abs(arenaHalfExtents.y));
+        position = ClampToArena(position);
         transform.position = position;
         if (animator != null)
             animator.SetFloat("Speed", Time.deltaTime > 0f ? (position - previousPosition).magnitude / Time.deltaTime : 0f);
 
         if (direction.sqrMagnitude > 0.0001f)
             transform.rotation = Quaternion.LookRotation(direction);
+    }
+
+    public Vector3 ClampToArena(Vector3 position)
+    {
+        Vector3 center = arenaCenter != null ? arenaCenter.position : Vector3.zero;
+        position.x = Mathf.Clamp(position.x, center.x - Mathf.Abs(arenaHalfExtents.x), center.x + Mathf.Abs(arenaHalfExtents.x));
+        position.z = Mathf.Clamp(position.z, center.z - Mathf.Abs(arenaHalfExtents.y), center.z + Mathf.Abs(arenaHalfExtents.y));
+        return position;
     }
 
     private void OnDrawGizmosSelected()
