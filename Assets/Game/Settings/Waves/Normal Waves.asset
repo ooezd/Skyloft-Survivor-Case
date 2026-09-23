@@ -12,30 +12,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1d7e15fcbfa6d934da976aa693fc5655, type: 3}
   m_Name: Normal Waves
   m_EditorClassIdentifier: Assembly-CSharp::WavePlanConfig
-  description: 'Normal: six 30-second waves. Spawn quota grows each wave; remaining
-    enemies carry over. Unspawned quota expires at the boundary.'
+  description: Ordered spawn quotas with independent constant spawning. Living enemies
+    carry over.
+  constantWave:
+    enabled: 1
+    spawnInterval: 4
   waves:
-  - name: Wave 1 - 0-30s
-    duration: 30
+  - duration: 30
     enemyCount: 12
     spawnInterval: 0.8
-  - name: Wave 2 - 30-60s
-    duration: 30
+  - duration: 30
     enemyCount: 15
     spawnInterval: 0.8
-  - name: Wave 3 - 60-90s
-    duration: 30
-    enemyCount: 18
-    spawnInterval: 0.8
-  - name: Wave 4 - 90-120s
-    duration: 30
+  - duration: 2
+    enemyCount: 20
+    spawnInterval: 0.1
+  - duration: 30
     enemyCount: 21
     spawnInterval: 0.8
-  - name: Wave 5 - 120-150s
-    duration: 30
+  - duration: 30
     enemyCount: 24
     spawnInterval: 0.8
-  - name: Wave 6 - 150-180s
-    duration: 30
+  - duration: 58
     enemyCount: 27
     spawnInterval: 0.8

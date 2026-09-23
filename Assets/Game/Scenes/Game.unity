@@ -373,7 +373,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3001302f81f7b8f4f9f9f14e6c3f44ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
-  matchDuration: 180
+  matchSettings: {fileID: 11400000, guid: c73a4e85aafe4dc591b2627f2b77ad45, type: 2}
   playerHealth: {fileID: 1885446826}
   playerMovement: {fileID: 1885446824}
   playerAttack: {fileID: 1885446825}

@@ -14,10 +14,16 @@ public class WaveDirector
     private int waveIndex;
     private float waveStart;
     private float nextSpawnTime;
+    private float nextConstantSpawnTime;
+    public int ConstantSpawned { get; private set; }
 
     public void Begin(WavePlanConfig wavePlan)
     {
+        if (wavePlan == null) throw new ArgumentNullException(nameof(wavePlan));
+        if (!wavePlan.Validate(out string error)) throw new ArgumentException(error, nameof(wavePlan));
         plan = wavePlan;
+        nextConstantSpawnTime = 0f;
+        ConstantSpawned = 0;
         waveIndex = 0;
         waveStart = nextSpawnTime = 0f;
         SpawnedThisWave = 0;
@@ -29,7 +35,14 @@ public class WaveDirector
 
     public void Tick(float elapsed, Func<bool> trySpawn)
     {
-        if (State == WaveState.Stopped || State == WaveState.Completed) return;
+        if (State == WaveState.Stopped) return;
+        // Independent clock and quota; the shared spawner still enforces the population cap.
+        if (plan.BackgroundWave.enabled && elapsed >= nextConstantSpawnTime)
+        {
+            nextConstantSpawnTime = elapsed + plan.BackgroundWave.spawnInterval;
+            if (trySpawn()) ConstantSpawned++;
+        }
+        if (State == WaveState.Completed) return;
         WavePlanConfig.Wave wave = plan.GetWave(waveIndex);
         // Old quotas expire even when a long frame crosses multiple boundaries.
         while (elapsed >= waveStart + wave.duration)

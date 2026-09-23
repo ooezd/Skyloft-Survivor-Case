@@ -8,6 +8,7 @@ public class WavePlanConfigEditor : Editor
     {
         serializedObject.Update();
         EditorGUILayout.PropertyField(serializedObject.FindProperty("description"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("constantWave"), true);
         var waves = serializedObject.FindProperty("waves");
         EditorGUILayout.Space();
         EditorGUILayout.HelpBox("Waves run in order. Living enemies carry over; unspawned quotas expire. Duration includes the rest after spawning.", MessageType.Info);
@@ -22,7 +23,6 @@ public class WavePlanConfigEditor : Editor
             var interval = wave.FindPropertyRelative("spawnInterval");
             EditorGUILayout.BeginVertical(EditorStyles.helpBox);
             EditorGUILayout.LabelField($"Wave {i + 1} | {start:0.#} - {start + duration.floatValue:0.#} seconds", EditorStyles.boldLabel);
-            EditorGUILayout.PropertyField(wave.FindPropertyRelative("name"), new GUIContent("Label"));
             EditorGUILayout.PropertyField(duration, new GUIContent("Duration (seconds)"));
             EditorGUILayout.PropertyField(quota, new GUIContent("Enemy Count (total quota)"));
             EditorGUILayout.PropertyField(interval, new GUIContent("Spawn Interval (seconds)"));
@@ -35,7 +35,7 @@ public class WavePlanConfigEditor : Editor
         }
         serializedObject.ApplyModifiedProperties();
         EditorGUILayout.LabelField($"Total Schedule: {start:0.#} seconds", EditorStyles.boldLabel);
-        if (!((WavePlanConfig)target).ValidateForMatch(180f, out string error))
+        if (!((WavePlanConfig)target).Validate(out string error))
             EditorGUILayout.HelpBox(error, MessageType.Warning);
     }
 }

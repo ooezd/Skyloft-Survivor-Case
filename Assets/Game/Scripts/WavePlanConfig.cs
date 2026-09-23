@@ -7,7 +7,6 @@ public class WavePlanConfig : ScriptableObject
     [Serializable]
     public class Wave
     {
-        public string name = "Wave";
         [Tooltip("Seconds until the next wave, including the rest after spawning finishes.")]
         [Min(0.1f)] public float duration = 30f;
         [Tooltip("Spawn quota. Unspawned enemies expire when the wave ends.")]
@@ -16,7 +15,17 @@ public class WavePlanConfig : ScriptableObject
         [Min(0.1f)] public float spawnInterval = 1f;
     }
 
+    [Serializable]
+    public class ConstantWave
+    {
+        public bool enabled = true;
+        [Tooltip("Independent spawn attempts throughout the match, including scheduled wave rests.")]
+        [Min(0.1f)] public float spawnInterval = 5f;
+    }
+
     [TextArea, SerializeField] private string description;
+    [SerializeField] private ConstantWave constantWave = new ConstantWave();
+    public ConstantWave BackgroundWave => constantWave;
     [Header("Waves - Played From Top To Bottom")]
     [SerializeField] private Wave[] waves = new Wave[0];
     public int WaveCount => waves == null ? 0 : waves.Length;
@@ -33,10 +42,12 @@ public class WavePlanConfig : ScriptableObject
         }
     }
 
-    public bool ValidateForMatch(float matchDuration, out string error)
+    public bool Validate(out string error)
     {
         error = null;
-        if (WaveCount == 0) error = "Add at least one wave.";
+        if (constantWave == null || (constantWave.enabled && !IsValidTime(constantWave.spawnInterval)))
+            error = "Constant wave needs an interval of at least 0.1 seconds.";
+        else if (WaveCount == 0) error = "Add at least one wave.";
         else
         {
             for (int i = 0; i < waves.Length; i++)
@@ -48,11 +59,19 @@ public class WavePlanConfig : ScriptableObject
                     break;
                 }
             }
-            if (error == null && TotalDuration + 0.001f < matchDuration)
-                error = $"Wave plan covers {TotalDuration:0.##} seconds; match requires {matchDuration:0.##}.";
+            if (error == null && !IsValidTime(TotalDuration)) error = "Total schedule duration must be finite.";
         }
         return error == null;
     }
 
     private static bool IsValidTime(float value) => value >= 0.1f && !float.IsInfinity(value) && !float.IsNaN(value);
+
+    public bool ValidateForMatch(float matchDuration, out string error)
+    {
+        if (!Validate(out error)) return false;
+        if (!IsValidTime(matchDuration)) error = "Match duration must be finite and at least 0.1 seconds.";
+        else if (!constantWave.enabled && TotalDuration + 0.001f < matchDuration)
+            error = $"Wave plan covers {TotalDuration:0.##} seconds; match requires {matchDuration:0.##}. Enable the constant wave or extend the schedule.";
+        return error == null;
+    }
 }

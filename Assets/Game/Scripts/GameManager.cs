@@ -9,7 +9,8 @@ public class GameManager : MonoBehaviour
     public enum RunState { SelectingDifficulty, Playing, Won, Lost }
     public const string TotalKillsKey = "Skyloft.LifetimeEnemyKills";
 
-    [SerializeField, Min(0.1f)] private float matchDuration = 180f;
+    [SerializeField] private MatchConfig matchSettings;
+    private float matchDuration => matchSettings != null ? matchSettings.Duration : 0f;
     [SerializeField] private Health playerHealth;
     [SerializeField] private PlayerController playerMovement;
     [SerializeField] private AutoAttackController playerAttack;
@@ -51,6 +52,11 @@ public class GameManager : MonoBehaviour
         if (State != RunState.SelectingDifficulty || difficulty == null)
             return;
 
+        if (matchSettings == null)
+        {
+            Debug.LogError("Assign Match Settings before starting.", this);
+            return;
+        }
         if (difficulty.WavePlan == null)
         {
             Debug.LogError($"{difficulty.name}: assign a Wave Plan before starting.", difficulty);
