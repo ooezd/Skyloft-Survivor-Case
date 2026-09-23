@@ -31,6 +31,7 @@ public class EnemyController : MonoBehaviour
     private void OnEnable()
     {
         Health.Died += HandleDeath;
+        Health.DamageReceived += ShowDamageNumber;
         spawnSequence = StartCoroutine(ShowSpawn());
     }
 
@@ -54,7 +55,16 @@ public class EnemyController : MonoBehaviour
         spawnSequence = null;
     }
 
-    private void OnDisable() => Health.Died -= HandleDeath;
+    private void OnDisable()
+    {
+        Health.Died -= HandleDeath;
+        Health.DamageReceived -= ShowDamageNumber;
+    }
+
+    private void ShowDamageNumber(Health damagedHealth, int damage)
+    {
+        DamageNumberCanvas.Show(damagedHealth.AimPosition, damage);
+    }
 
     private void HandleDeath(Health deadHealth)
     {

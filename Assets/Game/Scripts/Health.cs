@@ -16,6 +16,7 @@ public class Health : MonoBehaviour
     public Vector3 AimPosition => transform.position + Vector3.up * aimHeight;
     public event Action<Health> Died;
     public event Action<Health> Damaged;
+    public event Action<Health, int> DamageReceived;
     public event Action<Health> Changed;
 
     private Vector3 originalScale;
@@ -36,6 +37,7 @@ public class Health : MonoBehaviour
         currentHealth = Mathf.Max(0, currentHealth - damage);
         pulseRemaining = hitPulseDuration;
         Changed?.Invoke(this);
+        DamageReceived?.Invoke(this, damage);
         Damaged?.Invoke(this);
         if (!IsAlive)
         {
