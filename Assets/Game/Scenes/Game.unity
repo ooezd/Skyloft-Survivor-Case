@@ -639,7 +639,7 @@ Light:
   serializedVersion: 13
   m_Type: 1
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 2
+  m_Intensity: 1
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -1713,7 +1713,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: c90c27a276d8440e497794c965fb9008, type: 2}
+  - {fileID: 2100000, guid: 5f91d9380c294499c96b648794a08497, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -3380,6 +3380,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DamageNumberCanvas
   worldCamera: {fileID: 330585545}
   numberPrefab: {fileID: 4688240497080586879, guid: 741e74fb3ee19a14798dfef417e079ab, type: 3}
+  playerDamagePrefab: {fileID: 5138052284492844461, guid: 96b2a69bb18d474459af9dfbb32ff963, type: 3}
   upgradeTextPrefab: {fileID: 2421259790855449946, guid: 69cdbc3a473dcaa42a1d3c511a8a32eb, type: 3}
   worldOffset: {x: 0, y: 0.9, z: 0}
 --- !u!225 &1440733000
@@ -4175,6 +4176,7 @@ GameObject:
   - component: {fileID: 1885446826}
   - component: {fileID: 1885446825}
   - component: {fileID: 1885446827}
+  - component: {fileID: 1885446828}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -4190,8 +4192,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1885446822}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: -0.99999946, z: -0, w: -0.001027764}
+  m_LocalPosition: {x: 0.49006358, y: 0, z: 0.00050365325}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -4199,7 +4201,7 @@ Transform:
   - {fileID: 1322396527}
   - {fileID: 2122396527}
   m_Father: {fileID: 1207250512}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: -180.118, z: 0}
 --- !u!114 &1885446824
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4218,7 +4220,7 @@ MonoBehaviour:
   arenaHalfExtents: {x: 180, y: 180}
   visual: {fileID: 34218981}
   animator: {fileID: 1207395122}
-  deathDuration: 0.55
+  deathAnimation: {fileID: 1885446828}
 --- !u!114 &1885446825
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4289,6 +4291,20 @@ CapsuleCollider:
   m_Height: 1.8
   m_Direction: 1
   m_Center: {x: 0, y: 0.9, z: 0}
+--- !u!114 &1885446828
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1885446822}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3d1e8e9f1280ae40814b985206c48cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DeathAnimation
+  animator: {fileID: 1207395122}
+  blendDuration: 0.08
 --- !u!114 &1900874086
 MonoBehaviour:
   m_ObjectHideFlags: 0

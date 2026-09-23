@@ -107,14 +107,12 @@ public class GameManager : MonoBehaviour
         if (State != RunState.Playing)
             return;
 
-        // Latch the result before stopping objects or saving: callbacks cannot count twice.
         State = result;
         Waves.Stop();
         if (upgradeSpawner != null)
             upgradeSpawner.EndRun();
         playerAttack.ResetRunUpgrades();
         SetGameplayActive(false);
-        DestroyChildren(enemies);
         DestroyChildren(projectiles);
         TotalKills = PlayerPrefs.GetInt(TotalKillsKey, 0) + RunKills;
         PlayerPrefs.SetInt(TotalKillsKey, TotalKills);
@@ -138,6 +136,8 @@ public class GameManager : MonoBehaviour
     private void ShowResult()
     {
         resultVisible = true;
+        enemies.gameObject.SetActive(false);
+        DestroyChildren(enemies);
         resultPanel.SetActive(true);
     }
 
@@ -147,7 +147,8 @@ public class GameManager : MonoBehaviour
         playerMovement.enabled = active;
         playerAttack.enabled = active;
         enemySpawner.enabled = active;
-        enemies.gameObject.SetActive(active);
+        // Keep the crowd visible during player death; dead-player checks stop combat.
+        enemies.gameObject.SetActive(active || (State == RunState.Lost && !resultVisible));
         projectiles.gameObject.SetActive(active);
         joystick.gameObject.SetActive(active);
         hud.SetActive(active);

@@ -5,8 +5,9 @@ public sealed class DamageNumberCanvas : MonoBehaviour
 {
     [SerializeField] private Camera worldCamera;
     [SerializeField] private DamageNumber numberPrefab;
+    [SerializeField] private DamageNumber playerDamagePrefab;
     [SerializeField] private DamageNumber upgradeTextPrefab;
-    [Tooltip("Offset from the enemy's aim position in world units.")]
+    [Tooltip("Offset from the character's aim position in world units.")]
     [SerializeField] private Vector3 worldOffset = new Vector3(0f, 0.9f, 0f);
 
     private static DamageNumberCanvas instance;
@@ -28,7 +29,14 @@ public sealed class DamageNumberCanvas : MonoBehaviour
     {
         if (instance == null || damage <= 0)
             return;
-        instance.Spawn(position, damage);
+        instance.Spawn(instance.numberPrefab, position, damage);
+    }
+
+    public static void ShowPlayerDamage(Vector3 position, int damage)
+    {
+        if (instance == null || damage <= 0)
+            return;
+        instance.Spawn(instance.playerDamagePrefab, position, damage);
     }
 
     public static void ShowUpgrade(Vector3 position, string message)
@@ -42,15 +50,15 @@ public sealed class DamageNumberCanvas : MonoBehaviour
         number.Initialize(message, position + instance.worldOffset, instance.worldCamera, instance.canvas);
     }
 
-    private void Spawn(Vector3 position, int damage)
+    private void Spawn(DamageNumber prefab, Vector3 position, int damage)
     {
-        if (numberPrefab == null || worldCamera == null)
+        if (prefab == null || worldCamera == null)
         {
             Debug.LogError("Assign the damage number prefab and world camera on Damage Number Canvas.", this);
             return;
         }
 
-        DamageNumber number = Instantiate(numberPrefab, transform, false);
+        DamageNumber number = Instantiate(prefab, transform, false);
         number.Initialize(damage, position + worldOffset, worldCamera, canvas);
     }
 }

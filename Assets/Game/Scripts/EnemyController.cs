@@ -10,11 +10,12 @@ public class EnemyController : MonoBehaviour
     [SerializeField, Min(0.02f)] private float damageInterval = 1f;
     [SerializeField, Min(0.01f)] private float separationRadius = 1.5f;
     [SerializeField, Min(0f)] private float separationWeight = 2.2f;
-    [SerializeField, Range(0.15f, 0.3f)] private float deathDuration = 0.24f;
+    [SerializeField] private DeathAnimation deathAnimation;
 
     [SerializeField, Range(0.15f, 0.6f)] private float spawnDuration = 0.35f;
     private Coroutine spawnSequence;
     private bool isSpawning;
+    private Vector3 originalScale;
 
     public Health Health { get; private set; }
     private Health targetHealth;
@@ -24,6 +25,7 @@ public class EnemyController : MonoBehaviour
     private void Awake()
     {
         Health = GetComponent<Health>();
+        originalScale = transform.localScale;
         if (target != null)
             targetHealth = target.GetComponent<Health>();
     }
@@ -75,26 +77,14 @@ public class EnemyController : MonoBehaviour
         }
         isSpawning = false;
         // Health raises Died immediately, so the spawner removes/counts this enemy now.
-        foreach (Animator animator in GetComponentsInChildren<Animator>())
-            animator.enabled = false;
-        foreach (Collider collider in GetComponentsInChildren<Collider>())
-            collider.enabled = false;
+        transform.localScale = originalScale;
         StartCoroutine(ShowDeath());
     }
 
     private System.Collections.IEnumerator ShowDeath()
     {
-        Quaternion rotation = transform.rotation;
-        Vector3 scale = transform.localScale;
-        float elapsed = 0f;
-        while (elapsed < deathDuration)
-        {
-            float t = Mathf.Clamp01(elapsed / deathDuration);
-            transform.rotation = rotation * Quaternion.Euler(-65f * t, 0f, 15f * t);
-            transform.localScale = scale * Mathf.Lerp(1f, 0.3f, t * t);
-            elapsed += Time.deltaTime;
-            yield return null;
-        }
+        if (deathAnimation != null)
+            yield return deathAnimation.Play();
         Destroy(gameObject);
     }
 

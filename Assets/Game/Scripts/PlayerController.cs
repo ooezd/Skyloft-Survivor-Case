@@ -12,41 +12,28 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Animator animator;
 
     [Header("Death Presentation")]
-    [SerializeField, Range(0.2f, 1.2f)] private float deathDuration = 0.55f;
+    [SerializeField] private DeathAnimation deathAnimation;
 
     private Health health;
 
     private void Awake() => health = GetComponent<Health>();
 
+    private void OnEnable() => health.DamageReceived += ShowDamageNumber;
+
+    private void ShowDamageNumber(Health damagedHealth, int damage) =>
+        DamageNumberCanvas.ShowPlayerDamage(damagedHealth.AimPosition, damage);
+
     private void OnDisable()
     {
+        health.DamageReceived -= ShowDamageNumber;
         if (animator != null)
             animator.SetFloat("Speed", 0f);
     }
 
-    // GameManager runs this after combat stops and before revealing the result panel.
     public System.Collections.IEnumerator ShowDeath()
     {
-        foreach (Animator childAnimator in GetComponentsInChildren<Animator>())
-            childAnimator.enabled = false;
-        foreach (Collider childCollider in GetComponentsInChildren<Collider>())
-            childCollider.enabled = false;
-        if (visual == null)
-            yield break;
-
-        Quaternion rotation = visual.localRotation;
-        Vector3 scale = visual.localScale;
-        float elapsed = 0f;
-        while (elapsed < deathDuration)
-        {
-            float t = Mathf.Clamp01(elapsed / deathDuration);
-            visual.localRotation = rotation * Quaternion.Euler(-65f * t, 0f, 15f * t);
-            visual.localScale = scale * Mathf.Lerp(1f, 0.3f, t * t);
-            elapsed += Time.unscaledDeltaTime;
-            yield return null;
-        }
-        visual.localRotation = rotation * Quaternion.Euler(-65f, 0f, 15f);
-        visual.localScale = scale * 0.3f;
+        if (deathAnimation != null)
+            yield return deathAnimation.Play();
     }
 
     private void Update()
