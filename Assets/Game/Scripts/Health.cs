@@ -22,6 +22,10 @@ public class Health : MonoBehaviour
     private Vector3 originalScale;
     private float pulseRemaining;
 
+#if UNITY_EDITOR || SKYLOFT_BENCHMARK
+    public bool BenchmarkPreventDeath { get; set; }
+#endif
+
     private void Awake()
     {
         currentHealth = Mathf.Max(1, maxHealth);
@@ -35,6 +39,11 @@ public class Health : MonoBehaviour
             return;
 
         currentHealth = Mathf.Max(0, currentHealth - damage);
+#if UNITY_EDITOR || SKYLOFT_BENCHMARK
+        // Keep normal hit feedback and contact damage work, but finish the full workload.
+        if (BenchmarkPreventDeath)
+            currentHealth = Mathf.Max(1, currentHealth);
+#endif
         pulseRemaining = hitPulseDuration;
         Changed?.Invoke(this);
         DamageReceived?.Invoke(this, damage);

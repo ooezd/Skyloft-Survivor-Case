@@ -16,6 +16,11 @@ public class PlayerController : MonoBehaviour
 
     private Health health;
 
+#if UNITY_EDITOR || SKYLOFT_BENCHMARK
+    // Only the benchmark runner supplies this; ordinary gameplay still reads touch input.
+    public Vector2? BenchmarkInput { get; set; }
+#endif
+
     private void Awake() => health = GetComponent<Health>();
 
     private void OnEnable() => health.DamageReceived += ShowDamageNumber;
@@ -42,6 +47,10 @@ public class PlayerController : MonoBehaviour
             return;
 
         Vector2 input = joystick != null ? joystick.Input.normalized : Vector2.zero;
+#if UNITY_EDITOR || SKYLOFT_BENCHMARK
+        if (BenchmarkInput.HasValue)
+            input = BenchmarkInput.Value.normalized;
+#endif
         Vector3 direction = new Vector3(input.x, 0f, input.y);
         Vector3 previousPosition = transform.position;
         Vector3 position = transform.position + direction * (movementSpeed * Time.deltaTime);

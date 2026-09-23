@@ -16,6 +16,16 @@ public class EnemySpawner : MonoBehaviour
     public IReadOnlyList<EnemyController> ActiveEnemies => activeEnemies;
     public int KillCount => killCount;
 
+#if UNITY_EDITOR || SKYLOFT_BENCHMARK
+    private System.Random benchmarkRandom;
+    public int BenchmarkSpawnCount { get; private set; }
+    public void SetBenchmarkSeed(int seed)
+    {
+        benchmarkRandom = new System.Random(seed);
+        BenchmarkSpawnCount = 0;
+    }
+#endif
+
     public void ApplyDifficulty(DifficultyConfig difficulty)
     {
         maximumActiveEnemies = Mathf.Max(1, difficulty.MaximumActiveEnemies);
@@ -52,12 +62,20 @@ public class EnemySpawner : MonoBehaviour
             return false;
 
         float angle = Random.Range(0f, Mathf.PI * 2f);
+#if UNITY_EDITOR || SKYLOFT_BENCHMARK
+        if (benchmarkRandom != null)
+            angle = (float)benchmarkRandom.NextDouble() * Mathf.PI * 2f;
+#endif
         Vector3 offset = new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle)) * Mathf.Max(1f, spawnRadius);
         EnemyController enemy = Instantiate(enemyPrefab, player.position + offset, Quaternion.identity, enemiesParent);
         enemy.SetTarget(player);
         enemy.SetSpawner(this);
         activeEnemies.Add(enemy);
         enemy.Health.Died += HandleEnemyDeath;
+#if UNITY_EDITOR || SKYLOFT_BENCHMARK
+        if (benchmarkRandom != null)
+            BenchmarkSpawnCount++;
+#endif
         return true;
     }
 }

@@ -38,6 +38,23 @@ public class GameManager : MonoBehaviour
     private bool resultVisible;
     private bool replayRequested;
 
+#if UNITY_EDITOR || SKYLOFT_BENCHMARK
+    public bool BenchmarkMode { get; private set; }
+    public void StartBenchmarkRun()
+    {
+        if (matchSettings == null || Mathf.Abs(matchDuration - 180f) > 0.001f ||
+            matchSettings.Difficulties.Count != 3)
+            throw new System.InvalidOperationException("Benchmark requires a 180-second match and three difficulty profiles.");
+        BenchmarkMode = true;
+        StartRun(matchSettings.Difficulties[2]);
+        if (upgradeSpawner != null)
+        {
+            upgradeSpawner.EndRun();
+            upgradeSpawner.enabled = false;
+        }
+    }
+#endif
+
     private void Start()
     {
         RemainingTime = matchDuration;
@@ -114,9 +131,14 @@ public class GameManager : MonoBehaviour
         playerAttack.ResetRunUpgrades();
         SetGameplayActive(false);
         DestroyChildren(projectiles);
-        TotalKills = PlayerPrefs.GetInt(TotalKillsKey, 0) + RunKills;
-        PlayerPrefs.SetInt(TotalKillsKey, TotalKills);
-        PlayerPrefs.Save();
+#if UNITY_EDITOR || SKYLOFT_BENCHMARK
+        if (!BenchmarkMode)
+#endif
+        {
+            TotalKills = PlayerPrefs.GetInt(TotalKillsKey, 0) + RunKills;
+            PlayerPrefs.SetInt(TotalKillsKey, TotalKills);
+            PlayerPrefs.Save();
+        }
 
         resultTitle.text = result == RunState.Won ? "YOU SURVIVED" : "YOU DIED";
         resultKills.text = $"Run Kills: {RunKills}\nTotal Kills: {TotalKills}";
