@@ -14,8 +14,10 @@ public static class BenchmarkBuild
     internal const string SessionKey = "Skyloft.Benchmark.Building";
     private const string FingerprintKey = "Skyloft.Benchmark.Fingerprint";
     private const string RevisionKey = "Skyloft.Benchmark.Revision";
+    private const string InjectedKey = "Skyloft.Benchmark.Injected";
     public static string LastResult { get; private set; } = "not-started";
     private static string queuedRevision;
+    private static double queuedAfter;
 
     [MenuItem("Skyloft/Benchmark/Build Android APK")]
     public static void BuildMenu() => Queue("working-tree");
@@ -26,12 +28,15 @@ public static class BenchmarkBuild
         if (queuedRevision != null || BuildPipeline.isBuildingPlayer)
             throw new InvalidOperationException("A build is already queued or running.");
         queuedRevision = revision;
+        // Allow the MCP response to leave the main-thread dispatcher before blocking it.
+        queuedAfter = EditorApplication.timeSinceStartup + 5.0;
         LastResult = "queued";
         EditorApplication.update += RunQueued;
     }
 
     private static void RunQueued()
     {
+        if (EditorApplication.timeSinceStartup < queuedAfter) return;
         EditorApplication.update -= RunQueued;
         string revision = queuedRevision;
         queuedRevision = null;
@@ -65,6 +70,7 @@ public static class BenchmarkBuild
         SessionState.SetString(FingerprintKey, fingerprint);
         SessionState.SetString(RevisionKey, revision);
         SessionState.SetBool(SessionKey, true);
+        SessionState.SetBool(InjectedKey, false);
         LastResult = "building";
         try
         {
@@ -75,10 +81,14 @@ public static class BenchmarkBuild
             {
                 scenes = new[] { "Assets/Game/Scenes/Game.unity" },
                 locationPathName = output, target = BuildTarget.Android,
-                options = BuildOptions.Development | BuildOptions.DetailedBuildReport,
+                // Incremental scene caching can reuse the previous injected identity, or leak
+                // an injected scene into a later normal build. Reprocess benchmark scene data.
+                options = BuildOptions.Development | BuildOptions.DetailedBuildReport | BuildOptions.CleanBuildCache,
                 extraScriptingDefines = new[] { "SKYLOFT_BENCHMARK" }
             });
             LastResult = report.summary.result + "; errors=" + report.summary.totalErrors + "; " + output;
+            if (report.summary.result == BuildResult.Succeeded && !SessionState.GetBool(InjectedKey, false))
+                throw new InvalidOperationException("Benchmark scene injection did not run; do not use this APK.");
             File.WriteAllText(Path.Combine(Path.GetDirectoryName(output), "build.txt"),
                 "Protocol: " + BenchmarkRunner.Protocol + "\nRevision: " + revision +
                 "\nSource SHA256: " + fingerprint + "\nUTC: " + DateTime.UtcNow.ToString("O") +
@@ -142,6 +152,7 @@ public static class BenchmarkBuild
         SceneManager.MoveGameObjectToScene(runner.gameObject, scene);
         runner.SetBuildIdentity(SessionState.GetString(RevisionKey, "working-tree"),
             SessionState.GetString(FingerprintKey, "unknown"));
+        SessionState.SetBool(InjectedKey, true);
     }
 }
 

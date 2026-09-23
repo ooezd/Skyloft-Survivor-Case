@@ -51,6 +51,9 @@ not replace this combat/lifecycle workload. Do not change the protocol between b
    the in-game Replay button is not the benchmark repetition workflow.
 
 The build is Development, without Deep Profiling, script debugging or Profiler autoconnect.
+It uses `CleanBuildCache`: Unity can otherwise reuse a cached scene and its old injected identity.
+The helper checks that scene injection actually ran. **When returning to a normal APK, use Unity's
+Clean Build once as well**, so the injected benchmark scene cannot survive in cached player data.
 The build processor injects the runner into the build's copy of the scene, not the saved scene.
 `SKYLOFT_BENCHMARK` is a build-only define, not a permanent Player Setting. Normal builds exclude
 the runner and benchmark gameplay hooks. Product name/package ID/app-bundle settings are restored
@@ -58,7 +61,7 @@ in a `finally` block. Do not build another player concurrently.
 
 `build.txt` and each run contain a source fingerprint over Assets, Packages and ProjectSettings
 (paths and contents, excluding file timestamps). It is computed before temporary product settings.
-MCP can pass a source revision label to `BenchmarkBuild.Build("<revision>")`; the menu defaults to
+MCP can pass a source revision label to `BenchmarkBuild.Queue("<revision>")`; the menu defaults to
 `working-tree`. A fingerprint is identity evidence, not a replacement for the final baseline Git tag.
 
 ## Results and measurement limits
