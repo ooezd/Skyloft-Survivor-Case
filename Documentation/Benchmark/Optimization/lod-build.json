@@ -1,0 +1,16 @@
+{
+  "candidate": "enemy-lod-v1",
+  "protocol": "hard-route-v1",
+  "sourceFingerprint": "046ba85a4458eceaf5ed8ebdcb0dd611f0cead9f23692d1aeacc4d4bd9ac43c2",
+  "apkSha256": "0ec76ee2d246db64eb6f031f224fc90d9435bfd3b0498812e0e1e5073689b883",
+  "apkBytes": 84072171,
+  "revisionLabel": "lod-enemy-v1",
+  "buildUtc": "2026-09-24T13:48:12.9965159Z",
+  "unity": "6000.4.10f1",
+  "result": "Succeeded; errors=0",
+  "cleanBuildCache": true,
+  "development": true,
+  "profilerAutoconnect": false,
+  "deepProfiling": false,
+  "package": "com.ooezd.skyloft.benchmark"
+}
