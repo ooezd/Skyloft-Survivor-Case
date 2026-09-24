@@ -1,0 +1,50 @@
+{
+  "Main Thread": {
+    "frames": 369,
+    "meanFrameMs": 122.13852424363144,
+    "topInclusiveMsPerFrame": {
+      "PlayerLoop": 121.99555775918935,
+      "PostLateUpdate.FinishFrameRendering": 83.01554076652216,
+      "Gfx.WaitForPresentOnGfxThread": 73.0174832314374,
+      "Semaphore.WaitForSignal": 73.00516108350025,
+      "Update.ScriptRunBehaviourUpdate": 16.960374007703166,
+      "BehaviourUpdate": 16.949105500528805,
+      "Assembly-CSharp.dll!::EnemyController.Update() [Invoke]": 12.534783874067344,
+      "UnityEngine.CoreModule.dll!UnityEngine.Rendering::RenderPipelineManager.DoRenderLoop_Internal() [Invoke]": 9.493401918953996,
+      "WaitForJobGroupID": 9.400522655648428,
+      "Inl_UniversalRenderTotal": 9.353321381700717,
+      "Inl_RenderCameraStack": 9.171199887748656,
+      "Animators.Update": 8.870136024425346,
+      "Director.ProcessFrame": 8.605353239173168,
+      "EngineJob": 5.824326651640297,
+      "PreLateUpdate.DirectorUpdateAnimationEnd": 5.719551059288707,
+      "Inl_UniversalRenderPipeline.RenderSingleCameraInternal: Main Camera": 4.986490206989815,
+      "PreLateUpdate.DirectorUpdateAnimationBegin": 4.60148383220683,
+      "Inl_ScriptableRenderContext.Submit": 3.6152869046219
+    }
+  },
+  "Render Thread": {
+    "frames": 369,
+    "meanFrameMs": 122.14793156260163,
+    "topInclusiveMsPerFrame": {
+      "RenderLoop": 117.16492103742749,
+      "Gfx.PresentFrame": 108.89746130966559,
+      "GfxDeviceVK.Present": 105.78718546218666,
+      "UniversalRenderPipeline.RenderSingleCameraInternal: Main Camera": 5.967900351134096,
+      "ExecuteRenderGraph": 5.9468356968587655,
+      "Gfx.WaitForGfxCommandsFromMainThread": 5.060128097248271,
+      "Semaphore.WaitForSignal": 4.978276272523305,
+      "Bloom": 1.6599900682121111,
+      "DrawBuffersBatchMode": 1.6266918103778507,
+      "GfxDeviceVK.ExecuteCommandList": 1.5173339429702661,
+      "MeshSkinning.SkinOnGPU": 1.2597204345028574,
+      "RG_BloomDownsample": 1.0029243393965206,
+      "Draw Main Light Shadowmap": 0.9992913283145202,
+      "MainLightShadow": 0.9815443563590528,
+      "Shadows.DrawSRPBatcher": 0.9567721457420003,
+      "DrawOpaqueObjects": 0.8840359463924314,
+      "RenderLoop.DrawSRPBatcher": 0.8690356705085371,
+      "MeshSkinning.GPUBatchedSkin": 0.7746306111819052
+    }
+  }
+}
