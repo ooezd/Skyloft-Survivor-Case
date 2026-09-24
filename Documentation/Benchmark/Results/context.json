@@ -1,0 +1,61 @@
+{
+  "runs": [
+    {
+      "id": "20260924-075520-273",
+      "before": {
+        "apC": 34.4,
+        "batteryC": 30.1,
+        "thermalStatus": 0,
+        "batteryPercent": 100,
+        "usbPowered": true
+      },
+      "after": {
+        "apC": 50.0,
+        "batteryC": 30.6,
+        "thermalStatus": 0,
+        "batteryPercent": 100,
+        "usbPowered": true
+      },
+      "lowPower": false
+    },
+    {
+      "id": "20260924-090257-781",
+      "before": {
+        "apC": 31.2,
+        "batteryC": 27.8,
+        "thermalStatus": 0,
+        "batteryPercent": 100,
+        "usbPowered": true
+      },
+      "after": {
+        "apC": 48.2,
+        "batteryC": 28.9,
+        "thermalStatus": 0,
+        "batteryPercent": 100,
+        "usbPowered": true
+      },
+      "lowPower": false,
+      "conditioning": "Short unmeasured run 20260924-090053-401, force-stopped, followed by 30 seconds idle."
+    },
+    {
+      "id": "20260924-091349-543",
+      "before": {
+        "apC": 33.3,
+        "batteryC": 30.1,
+        "thermalStatus": 0,
+        "batteryPercent": 100,
+        "usbPowered": true
+      },
+      "after": {
+        "apC": 50.7,
+        "batteryC": 30.8,
+        "thermalStatus": 0,
+        "batteryPercent": 100,
+        "usbPowered": true,
+        "note": "Thermalservice BAT 30.8 C; battery service read shortly afterward was 30.9 C."
+      },
+      "lowPower": false
+    }
+  ],
+  "limits": "Temperatures are before/after observations, not continuous samples. Brightness/background activity not independently logged; thermal status zero does not rule out hardware throttling."
+}

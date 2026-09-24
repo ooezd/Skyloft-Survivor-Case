@@ -1,5 +1,8 @@
 # Android baseline protocol
 
+Completed baseline: [RESULTS.md](RESULTS.md). Three accepted A50 runs are recorded under the
+local `baseline-gameplay` tag; measured source is `d4fd79f`.
+
 ## Decision and scope
 
 Reference device: Samsung Galaxy A50 (user-provided; record actual model/OS/GPU from the run).

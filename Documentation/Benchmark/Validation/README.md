@@ -21,5 +21,9 @@ addition of difficulty, enemy cap and wave-plan JSON. It is not an eligible inpu
 comparison. Those fields do not alter the gameplay or sampling loop; checks passed again after
 their addition. Android validation remains a separate gate.
 
+On September 24, `device-paused-summary.json` was retrieved from a pre-existing device run. It
+records `invalid-paused` at 118.31 seconds, confirming that interruption is not reported as a
+completed run. Its earlier source identity excludes it from the accepted baseline group.
+
 GC and memory values in this Editor capture include Editor/tooling overhead. Render counters were
 unavailable and explicitly marked as such. Do not copy these timing/GC values into a device report.
