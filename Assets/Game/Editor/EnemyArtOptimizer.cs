@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using UnityMeshSimplifier;
@@ -39,9 +40,11 @@ public static class EnemyArtOptimizer
             var root = PrefabUtility.LoadPrefabContents(Prefab);
             try
             {
-                var original = root.GetComponentInChildren<SkinnedMeshRenderer>(true);
+                var original = root.GetComponentsInChildren<SkinnedMeshRenderer>(true)
+                    .SingleOrDefault(renderer => renderer.name == "Ch30");
                 if (original == null || original.sharedMesh == null)
                     throw new InvalidOperationException("Enemy prefab renderer missing");
+                original.sharedMesh = source;
                 var parent = original.transform.parent;
                 foreach (string name in new[] { "Enemy LOD1", "Enemy LOD2" })
                 {
@@ -89,6 +92,81 @@ public static class EnemyArtOptimizer
                 AssetDatabase.ImportAsset(Source, ImportAssetOptions.ForceUpdate);
             }
         }
+    }
+
+    [MenuItem("Skyloft/Optimization/Use Enemy LOD2 At All Distances")]
+    public static void UseLowDetailEverywhere()
+    {
+        var low = AssetDatabase.LoadAssetAtPath<Mesh>(Folder + "/Enemy LOD2.asset");
+        if (low == null) throw new InvalidOperationException("Generate enemy LOD meshes first");
+        var root = PrefabUtility.LoadPrefabContents(Prefab);
+        try
+        {
+            var original = root.GetComponentsInChildren<SkinnedMeshRenderer>(true)
+                .SingleOrDefault(renderer => renderer.name == "Ch30");
+            if (original == null) throw new InvalidOperationException("Enemy prefab renderer missing");
+            var parent = original.transform.parent;
+            foreach (string name in new[] { "Enemy LOD1", "Enemy LOD2" })
+            {
+                var child = parent.Find(name);
+                if (child != null) UnityEngine.Object.DestroyImmediate(child.gameObject);
+            }
+            var group = parent.GetComponent<LODGroup>();
+            if (group != null) UnityEngine.Object.DestroyImmediate(group);
+            original.sharedMesh = low;
+            PrefabUtility.SaveAsPrefabAsset(root, Prefab);
+        }
+        finally { PrefabUtility.UnloadPrefabContents(root); }
+        AssetDatabase.SaveAssets();
+        Debug.Log("Enemy LOD2 is now the single runtime mesh; source FBX remains unchanged");
+    }
+
+    [MenuItem("Skyloft/Optimization/Use Enemy Radical 2 and 3 LOD Group")]
+    public static void UseRadicalPair()
+    {
+        const string radical = Folder + "/Radical/";
+        var nearMesh = AssetDatabase.LoadAssetAtPath<Mesh>(radical + "Enemy Radical 2.asset");
+        var farMesh = AssetDatabase.LoadAssetAtPath<Mesh>(radical + "Enemy Radical 3.asset");
+        if (nearMesh == null || farMesh == null)
+            throw new InvalidOperationException("Generate Enemy Radical 3 before wiring the LOD Group");
+
+        var root = PrefabUtility.LoadPrefabContents(Prefab);
+        try
+        {
+            var near = root.GetComponentsInChildren<SkinnedMeshRenderer>(true)
+                .SingleOrDefault(renderer => renderer.name == "Ch30");
+            if (near == null) throw new InvalidOperationException("Enemy prefab renderer missing");
+            var parent = near.transform.parent;
+            foreach (string name in new[] { "Enemy LOD1", "Enemy LOD2", "Enemy Radical 3" })
+            {
+                var old = parent.Find(name);
+                if (old != null) UnityEngine.Object.DestroyImmediate(old.gameObject);
+            }
+
+            near.sharedMesh = nearMesh;
+            var farObject = new GameObject("Enemy Radical 3");
+            farObject.transform.SetParent(parent, false);
+            var far = farObject.AddComponent<SkinnedMeshRenderer>();
+            EditorUtility.CopySerialized(near, far);
+            far.sharedMesh = farMesh;
+            far.rootBone = near.rootBone;
+            far.bones = near.bones;
+
+            var group = parent.GetComponent<LODGroup>();
+            if (group == null) group = parent.gameObject.AddComponent<LODGroup>();
+            group.fadeMode = LODFadeMode.None;
+            // Initial screen-height thresholds only; tune these in the LOD Group Inspector.
+            group.SetLODs(new[]
+            {
+                new LOD(0.08f, new Renderer[] { near }),
+                new LOD(0.001f, new Renderer[] { far })
+            });
+            group.RecalculateBounds();
+            PrefabUtility.SaveAsPrefabAsset(root, Prefab);
+        }
+        finally { PrefabUtility.UnloadPrefabContents(root); }
+        AssetDatabase.SaveAssets();
+        Debug.Log("Enemy LOD Group wired: Radical 2 near, Radical 3 far; thresholds are Inspector-tunable");
     }
 
     private static Mesh SaveSimplified(Mesh source, float quality, string name)
