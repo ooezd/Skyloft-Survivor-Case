@@ -7,10 +7,40 @@ public class DeathAnimation : MonoBehaviour
     [SerializeField] private Animator animator;
     [SerializeField, Min(0f)] private float blendDuration = 0.08f;
     private static readonly int DeathState = Animator.StringToHash("Base Layer.Death");
+    private Collider[] colliders;
+    private bool[] colliderEnabled;
+    private float[] layerWeights;
+    private AnimatorUpdateMode originalUpdateMode;
+
+    private void Awake()
+    {
+        colliders = GetComponentsInChildren<Collider>(true);
+        colliderEnabled = new bool[colliders.Length];
+        for (int i = 0; i < colliders.Length; i++)
+            colliderEnabled[i] = colliders[i].enabled;
+        if (animator == null) return;
+        originalUpdateMode = animator.updateMode;
+        layerWeights = new float[animator.layerCount];
+        for (int i = 0; i < layerWeights.Length; i++)
+            layerWeights[i] = animator.GetLayerWeight(i);
+    }
+
+    public void ResetForSpawn()
+    {
+        for (int i = 0; i < colliders.Length; i++)
+            if (colliders[i] != null)
+                colliders[i].enabled = colliderEnabled[i];
+        if (animator == null) return;
+        animator.updateMode = originalUpdateMode;
+        animator.Rebind();
+        animator.Update(0f);
+        for (int i = 0; i < layerWeights.Length; i++)
+            animator.SetLayerWeight(i, layerWeights[i]);
+    }
 
     public IEnumerator Play()
     {
-        foreach (Collider childCollider in GetComponentsInChildren<Collider>())
+        foreach (Collider childCollider in colliders)
             childCollider.enabled = false;
 
         if (animator == null || !animator.HasState(0, DeathState))

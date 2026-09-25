@@ -13,6 +13,7 @@ public class Health : MonoBehaviour
     public int CurrentHealth => currentHealth;
     public int MaxHealth => maxHealth;
     public bool IsAlive => currentHealth > 0;
+    public int SpawnVersion { get; private set; } = 1;
     public Vector3 AimPosition => transform.position + Vector3.up * aimHeight;
     public event Action<Health> Died;
     public event Action<Health> Damaged;
@@ -31,6 +32,13 @@ public class Health : MonoBehaviour
         currentHealth = Mathf.Max(1, maxHealth);
         if (visual != null)
             originalScale = visual.localScale;
+    }
+
+    public void ResetForSpawn()
+    {
+        ResetPulse();
+        currentHealth = Mathf.Max(1, maxHealth);
+        SpawnVersion++;
     }
 
     public void TakeDamage(int damage)

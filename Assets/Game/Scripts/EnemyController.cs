@@ -61,6 +61,12 @@ public class EnemyController : MonoBehaviour
     {
         Health.Died -= HandleDeath;
         Health.DamageReceived -= ShowDamageNumber;
+        if (spawnSequence != null)
+        {
+            StopCoroutine(spawnSequence);
+            spawnSequence = null;
+        }
+        isSpawning = false;
     }
 
     private void ShowDamageNumber(Health damagedHealth, int damage)
@@ -85,10 +91,26 @@ public class EnemyController : MonoBehaviour
     {
         if (deathAnimation != null)
             yield return deathAnimation.Play();
-        Destroy(gameObject);
+        if (spawner != null) spawner.ReturnEnemy(this);
+        else Destroy(gameObject);
     }
 
     public void SetSpawner(EnemySpawner owner) => spawner = owner;
+
+    public void PrepareForSpawn(Transform player, EnemySpawner owner)
+    {
+        SetTarget(player);
+        spawner = owner;
+        nextDamageTime = 0f;
+        transform.localScale = originalScale;
+        Health.ResetForSpawn();
+    }
+
+    public void ResetPresentationForSpawn()
+    {
+        if (deathAnimation != null)
+            deathAnimation.ResetForSpawn();
+    }
 
     private Vector3 Separation()
     {
@@ -96,15 +118,23 @@ public class EnemyController : MonoBehaviour
         if (spawner == null || separationWeight <= 0f)
             return force;
 
-        foreach (EnemyController other in spawner.ActiveEnemies)
+        // The spawner exposes IReadOnlyList; indexed access avoids an interface enumerator
+        // for every enemy on every frame. Most enemies are outside this small radius, so
+        // reject them before health checks and the square root.
+        var enemies = spawner.ActiveEnemies;
+        Vector3 position = transform.position;
+        float radiusSquared = separationRadius * separationRadius;
+        for (int i = 0; i < enemies.Count; i++)
         {
-            if (other == null || other == this || !other.isActiveAndEnabled || !other.Health.IsAlive)
+            EnemyController other = enemies[i];
+            if (other == null || other == this)
                 continue;
-            Vector3 offset = transform.position - other.transform.position;
+            Vector3 offset = position - other.transform.position;
             offset.y = 0f;
-            float distance = offset.magnitude;
-            if (distance >= separationRadius)
+            float distanceSquared = offset.sqrMagnitude;
+            if (distanceSquared >= radiusSquared || !other.isActiveAndEnabled || !other.Health.IsAlive)
                 continue;
+            float distance = Mathf.Sqrt(distanceSquared);
             // Opposite, deterministic directions also separate exact coincident spawns.
             Vector3 away = distance > 0.0001f ? offset / distance :
                 (GetEntityId() < other.GetEntityId() ? Vector3.right : Vector3.left);

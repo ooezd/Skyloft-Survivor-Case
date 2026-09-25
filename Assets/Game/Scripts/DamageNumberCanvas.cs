@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Canvas))]
@@ -12,6 +13,8 @@ public sealed class DamageNumberCanvas : MonoBehaviour
 
     private static DamageNumberCanvas instance;
     private Canvas canvas;
+    private readonly Dictionary<DamageNumber, Stack<DamageNumber>> availableNumbers =
+        new Dictionary<DamageNumber, Stack<DamageNumber>>();
 
     private void OnEnable()
     {
@@ -46,7 +49,7 @@ public sealed class DamageNumberCanvas : MonoBehaviour
         DamageNumber prefab = instance.upgradeTextPrefab != null ? instance.upgradeTextPrefab : instance.numberPrefab;
         if (prefab == null)
             return;
-        DamageNumber number = Instantiate(prefab, instance.transform, false);
+        DamageNumber number = instance.GetNumber(prefab);
         number.Initialize(message, position + instance.worldOffset, instance.worldCamera, instance.canvas);
     }
 
@@ -58,7 +61,34 @@ public sealed class DamageNumberCanvas : MonoBehaviour
             return;
         }
 
-        DamageNumber number = Instantiate(prefab, transform, false);
+        DamageNumber number = GetNumber(prefab);
         number.Initialize(damage, position + worldOffset, worldCamera, canvas);
+    }
+
+    private DamageNumber GetNumber(DamageNumber prefab)
+    {
+        if (!availableNumbers.TryGetValue(prefab, out Stack<DamageNumber> available))
+        {
+            available = new Stack<DamageNumber>(8);
+            availableNumbers.Add(prefab, available);
+        }
+        DamageNumber number = null;
+        while (available.Count > 0 && number == null)
+            number = available.Pop();
+        if (number == null)
+        {
+            number = Instantiate(prefab, transform, false);
+            number.SetPool(this, prefab);
+        }
+        else
+            number.gameObject.SetActive(true);
+        return number;
+    }
+
+    public void ReturnNumber(DamageNumber number, DamageNumber prefab)
+    {
+        if (number == null || prefab == null) return;
+        number.gameObject.SetActive(false);
+        availableNumbers[prefab].Push(number);
     }
 }

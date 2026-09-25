@@ -26,6 +26,21 @@ public sealed class DamageNumber : MonoBehaviour
     private float originalAlpha;
     private float elapsed;
     private bool initialized;
+    private DamageNumberCanvas pool;
+    private DamageNumber sourcePrefab;
+
+    private void Awake()
+    {
+        rect = (RectTransform)transform;
+        originalScale = rect.localScale;
+        originalAlpha = opacity != null ? opacity.alpha : 1f;
+    }
+
+    public void SetPool(DamageNumberCanvas owner, DamageNumber prefab)
+    {
+        pool = owner;
+        sourcePrefab = prefab;
+    }
 
     public void Initialize(int damage, Vector3 position, Camera camera, Canvas owner) =>
         Initialize(damage.ToString(CultureInfo.InvariantCulture), position, camera, owner);
@@ -39,15 +54,14 @@ public sealed class DamageNumber : MonoBehaviour
             return;
         }
 
-        rect = (RectTransform)transform;
         container = (RectTransform)rect.parent;
         canvas = owner;
         worldCamera = camera;
         // A fixed world position lets lethal hits outlive the enemy.
         worldPosition = position;
-        originalScale = rect.localScale;
-        originalAlpha = opacity.alpha;
         elapsed = 0f;
+        rect.localScale = originalScale;
+        opacity.alpha = originalAlpha;
         label.text = message;
         initialized = true;
         UpdateVisual(0f);
@@ -62,10 +76,19 @@ public sealed class DamageNumber : MonoBehaviour
         float t = Mathf.Clamp01(elapsed / Mathf.Max(0.01f, lifetime));
         if (t >= 1f || worldCamera == null || canvas == null)
         {
-            Destroy(gameObject);
+            Release();
             return;
         }
         UpdateVisual(t);
+    }
+
+    private void OnDisable() => initialized = false;
+
+    private void Release()
+    {
+        initialized = false;
+        if (pool != null) pool.ReturnNumber(this, sourcePrefab);
+        else Destroy(gameObject);
     }
 
     private void UpdateVisual(float t)

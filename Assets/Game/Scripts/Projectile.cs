@@ -9,19 +9,32 @@ public class Projectile : MonoBehaviour
 
     private Health target;
     private int damage;
+    private int targetSpawnVersion;
+    private AutoAttackController owner;
+    private TrailRenderer trail;
+    private float elapsed;
+    private bool released;
 
-    public void Initialize(Health selectedTarget, int impactDamage)
+    private void Awake() => trail = GetComponentInChildren<TrailRenderer>(true);
+
+    public void Initialize(Health selectedTarget, int impactDamage, AutoAttackController source)
     {
         target = selectedTarget;
         damage = impactDamage;
-        Destroy(gameObject, Mathf.Max(0.1f, lifetime));
+        targetSpawnVersion = selectedTarget != null ? selectedTarget.SpawnVersion : 0;
+        owner = source;
+        elapsed = 0f;
+        released = false;
+        if (trail != null) trail.Clear();
     }
 
     private void Update()
     {
-        if (target == null || !target.isActiveAndEnabled || !target.IsAlive)
+        elapsed += Time.deltaTime;
+        if (elapsed >= Mathf.Max(0.1f, lifetime) || target == null ||
+            !target.isActiveAndEnabled || !target.IsAlive || target.SpawnVersion != targetSpawnVersion)
         {
-            Destroy(gameObject);
+            Release();
             return;
         }
 
@@ -36,8 +49,20 @@ public class Projectile : MonoBehaviour
             int healthBefore = target.CurrentHealth;
             target.TakeDamage(damage);
             if (impactPrefab != null && target.CurrentHealth < healthBefore)
-                Instantiate(impactPrefab, destination, Quaternion.identity);
-            Destroy(gameObject);
+            {
+                if (owner != null) owner.PlayImpact(impactPrefab, destination);
+                else Instantiate(impactPrefab, destination, Quaternion.identity);
+            }
+            Release();
         }
+    }
+
+    private void Release()
+    {
+        if (released) return;
+        released = true;
+        target = null;
+        if (owner != null) owner.ReturnProjectile(this);
+        else Destroy(gameObject);
     }
 }

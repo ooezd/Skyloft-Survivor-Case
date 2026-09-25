@@ -10,6 +10,7 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField, Min(0)] private int maximumActiveEnemies = 20;
 
     private readonly List<EnemyController> activeEnemies = new List<EnemyController>();
+    private readonly Stack<EnemyController> availableEnemies = new Stack<EnemyController>();
     private Health playerHealth;
     [SerializeField] private int killCount;
 
@@ -67,9 +68,22 @@ public class EnemySpawner : MonoBehaviour
             angle = (float)benchmarkRandom.NextDouble() * Mathf.PI * 2f;
 #endif
         Vector3 offset = new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle)) * Mathf.Max(1f, spawnRadius);
-        EnemyController enemy = Instantiate(enemyPrefab, player.position + offset, Quaternion.identity, enemiesParent);
-        enemy.SetTarget(player);
-        enemy.SetSpawner(this);
+        EnemyController enemy = null;
+        while (availableEnemies.Count > 0 && enemy == null)
+            enemy = availableEnemies.Pop();
+        if (enemy == null)
+        {
+            enemy = Instantiate(enemyPrefab, player.position + offset, Quaternion.identity, enemiesParent);
+            enemy.SetTarget(player);
+            enemy.SetSpawner(this);
+        }
+        else
+        {
+            enemy.transform.SetPositionAndRotation(player.position + offset, Quaternion.identity);
+            enemy.PrepareForSpawn(player, this);
+            enemy.gameObject.SetActive(true);
+            enemy.ResetPresentationForSpawn();
+        }
         activeEnemies.Add(enemy);
         enemy.Health.Died += HandleEnemyDeath;
 #if UNITY_EDITOR || SKYLOFT_BENCHMARK
@@ -77,5 +91,12 @@ public class EnemySpawner : MonoBehaviour
             BenchmarkSpawnCount++;
 #endif
         return true;
+    }
+
+    public void ReturnEnemy(EnemyController enemy)
+    {
+        if (enemy == null) return;
+        enemy.gameObject.SetActive(false);
+        availableEnemies.Push(enemy);
     }
 }

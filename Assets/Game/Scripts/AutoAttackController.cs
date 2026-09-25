@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Health))]
@@ -51,7 +52,17 @@ public class AutoAttackController : MonoBehaviour
     private Quaternion restingVisualRotation;
     private Quaternion smoothedRifleRotation;
     private Quaternion smoothedVisualRotation;
+    private readonly Stack<Projectile> availableProjectiles = new Stack<Projectile>(16);
+    private readonly Stack<ParticleSystem> availableMuzzleEffects = new Stack<ParticleSystem>(8);
+    private readonly Stack<ParticleSystem> availableImpactEffects = new Stack<ParticleSystem>(8);
+    private readonly List<ActiveEffect> activeEffects = new List<ActiveEffect>(16);
     private const int AttackRangeRingSegments = 96;
+
+    private struct ActiveEffect
+    {
+        public ParticleSystem Effect;
+        public bool IsImpact;
+    }
 
     private void Awake()
     {
@@ -95,6 +106,7 @@ public class AutoAttackController : MonoBehaviour
 
     private void LateUpdate()
     {
+        RecycleFinishedEffects();
         if (!health.IsAlive)
         {
             CurrentTarget = null;
@@ -141,10 +153,11 @@ public class AutoAttackController : MonoBehaviour
             return;
 
         nextFire = Time.time + CurrentFireInterval;
-        Projectile projectile = Instantiate(projectilePrefab, muzzle.position, muzzle.rotation, projectilesParent);
-        projectile.Initialize(CurrentTarget.Health, CurrentDamage);
+        Projectile projectile = GetProjectile();
+        projectile.Initialize(CurrentTarget.Health, CurrentDamage, this);
         if (muzzleFlashPrefab != null)
-            Instantiate(muzzleFlashPrefab, muzzle.position, muzzle.rotation, muzzle);
+            PlayEffect(muzzleFlashPrefab, muzzle.position, muzzle.rotation, muzzle,
+                availableMuzzleEffects, false);
         if (animator != null && animator.isActiveAndEnabled)
         {
             animator.ResetTrigger("Fire");
@@ -152,6 +165,81 @@ public class AutoAttackController : MonoBehaviour
         }
         if (audioManager != null)
             audioManager.PlayShot();
+    }
+
+    private Projectile GetProjectile()
+    {
+        Projectile projectile = null;
+        while (availableProjectiles.Count > 0 && projectile == null)
+            projectile = availableProjectiles.Pop();
+        if (projectile == null)
+            return Instantiate(projectilePrefab, muzzle.position, muzzle.rotation, projectilesParent);
+
+        projectile.transform.SetPositionAndRotation(muzzle.position, muzzle.rotation);
+        projectile.gameObject.SetActive(true);
+        return projectile;
+    }
+
+    public void ReturnProjectile(Projectile projectile)
+    {
+        if (projectile == null) return;
+        projectile.gameObject.SetActive(false);
+        availableProjectiles.Push(projectile);
+    }
+
+    public void PlayImpact(ParticleSystem prefab, Vector3 position)
+    {
+        if (prefab != null)
+            PlayEffect(prefab, position, Quaternion.identity, projectilesParent,
+                availableImpactEffects, true);
+    }
+
+    private void PlayEffect(ParticleSystem prefab, Vector3 position, Quaternion rotation,
+        Transform parent, Stack<ParticleSystem> available, bool isImpact)
+    {
+        ParticleSystem effect = null;
+        while (available.Count > 0 && effect == null)
+            effect = available.Pop();
+        if (effect == null)
+        {
+            effect = Instantiate(prefab, position, rotation, parent);
+            var main = effect.main;
+            main.stopAction = ParticleSystemStopAction.None;
+        }
+        else
+        {
+            effect.transform.SetPositionAndRotation(position, rotation);
+            effect.gameObject.SetActive(true);
+        }
+        effect.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        effect.Play(true);
+        activeEffects.Add(new ActiveEffect { Effect = effect, IsImpact = isImpact });
+    }
+
+    private void RecycleFinishedEffects()
+    {
+        for (int i = activeEffects.Count - 1; i >= 0; i--)
+        {
+            ActiveEffect active = activeEffects[i];
+            if (active.Effect != null && active.Effect.IsAlive(true)) continue;
+            activeEffects.RemoveAt(i);
+            if (active.Effect == null) continue;
+            active.Effect.gameObject.SetActive(false);
+            (active.IsImpact ? availableImpactEffects : availableMuzzleEffects).Push(active.Effect);
+        }
+    }
+
+    private void OnDisable()
+    {
+        for (int i = activeEffects.Count - 1; i >= 0; i--)
+        {
+            ActiveEffect active = activeEffects[i];
+            if (active.Effect == null) continue;
+            active.Effect.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            active.Effect.gameObject.SetActive(false);
+            (active.IsImpact ? availableImpactEffects : availableMuzzleEffects).Push(active.Effect);
+        }
+        activeEffects.Clear();
     }
 
     private void SmoothAim(Transform aim, ref Quaternion rotation, Quaternion desired)
