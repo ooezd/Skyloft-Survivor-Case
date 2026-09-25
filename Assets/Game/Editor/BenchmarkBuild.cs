@@ -19,6 +19,20 @@ public static class BenchmarkBuild
     private static string queuedRevision;
     private static double queuedAfter;
 
+    // One-shot fallback when a headless client cannot reach the open Editor's MCP server.
+    // Placing a revision in Builds/Benchmark/request.txt and recompiling queues one build.
+    [InitializeOnLoadMethod]
+    private static void QueueRequestedBuild()
+    {
+        string request = Path.GetFullPath(Path.Combine(Application.dataPath,
+            "..", "Builds", "Benchmark", "request.txt"));
+        if (!File.Exists(request)) return;
+        string revision = File.ReadAllText(request).Trim();
+        File.Delete(request);
+        if (revision.Length == 0) return;
+        EditorApplication.delayCall += () => Queue(revision);
+    }
+
     [MenuItem("Skyloft/Benchmark/Build Android APK")]
     public static void BuildMenu() => Queue("working-tree");
 
